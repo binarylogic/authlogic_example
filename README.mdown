@@ -6,7 +6,7 @@ This application live: [http://authlogic_example.binarylogic.com](http://authlog
 
 Quick tutorial on how to build this application here: [http://www.binarylogic.com/2008/11/3/tutorial-authlogic-basic-setup](http://www.binarylogic.com/2008/11/3/tutorial-authlogic-basic-setup)
 
-Authlogic: [http://github.com/binarylogic/searchlogic](http://github.com/binarylogic/searchlogic)
+Authlogic: [http://github.com/binarylogic/authlogic](http://github.com/binarylogic/authlogic)
 
 
 Copyright (c) 2008 [Ben Johnson](http://github.com/binarylogic) of [Binary Logic](http://www.binarylogic.com), released under the MIT license
