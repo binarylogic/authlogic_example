@@ -1,4 +1,5 @@
 *.sqlite3
+config/deploy.rb
 db/schema.rb
 config/database.yml
 config/locomotive.yml
