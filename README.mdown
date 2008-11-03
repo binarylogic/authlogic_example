@@ -1,4 +1,4 @@
-= Authlogic Example App
+# Authlogic Example App
 
 This is an example of how to use Authlogic in a rails app. Authlogic is an object based authentication solution that handles all of the non sense for you. It's as easy as ActiveRecord is with a database.
 
@@ -9,4 +9,4 @@ Quick tutorial on how to build this application here: [http://www.binarylogic.co
 Authlogic: [http://github.com/binarylogic/searchlogic](http://github.com/binarylogic/searchlogic)
 
 
-Copyright (c) 2008 {Ben Johnson}[http://github.com/binarylogic] of {Binary Logic}[http://www.binarylogic.com], released under the MIT license
+Copyright (c) 2008 [Ben Johnson](http://github.com/binarylogic) of [Binary Logic](http://www.binarylogic.com), released under the MIT license
