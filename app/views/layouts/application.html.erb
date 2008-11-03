@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<span style="float: right;"><%= link_to "Source code", "http://github.com/binarylogic/authlogic_example" %> | Tutorial | Authlogic Repo | Authlogic Doc</span>
+<span style="float: right;"><%= link_to "Source code", "http://github.com/binarylogic/authlogic_example" %> | <%= link_to "Tutorial", "http://www.binarylogic.com/2008/11/3/tutorial-authlogic-basic-setup" %> | <%= link_to "Authlogic Repo", "http://github.com/binarylogic/authlogic" %> | <%= link_to "Authlogic Doc", "http://authlogic.rubyforge.org/" %></span>
 <h1>Authlogic Example App</h1>
 <%= pluralize User.logged_in.count, "user" %> currently logged in<br /> <!-- This based on last_request_at, if they were active < 10 minutes they are logged in -->
 <br />
