@@ -9,16 +9,25 @@ module Authlogic
         self.controller = controller
       end
       
-      def authenticate_with_http_basic(*args, &block)
+      def authenticate_with_http_basic(&block)
+        @auth = Rack::Auth::Basic::Request.new(controller.request.env)
+        if @auth.provided? and @auth.basic?
+          black.call(*@auth.credentials)
+        else
+          false
+        end
       end
       
       def cookies
+        controller.cookies
       end
       
       def request
+        controller.request
       end
       
       def session
+        controller.session
       end
     end
   end
