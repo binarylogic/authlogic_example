@@ -4,6 +4,7 @@ class CreateUsers < ActiveRecord::Migration
       t.string :login
       t.string :crypted_password
       t.string :password_salt
+      #t.string :openid
       t.string :remember_token
       t.integer :login_count
       t.datetime :last_request_at
