@@ -50,10 +50,10 @@ Rails::Initializer.run do |config|
   # If you change this key, all old sessions will become invalid!
   # Make sure the secret is at least 30 characters and all random, 
   # no regular words or you'll be exposed to dictionary attacks.
-  config.action_controller.session = {
-    :session_key => '_authgasm_example_session',
-    :secret      => '94b9c594695e69bdef6b1d4be037af5853be976b39a52a02f260fca0d0a36a8f913572bfdb631f55971a3b10b8dd9a875f9776ca61371741544e6ccc064dd41e'
-  }
+  #config.action_controller.session = {
+  #  :session_key => '_authgasm_example_session',
+  #  :secret      => '94b9c594695e69bdef6b1d4be037af5853be976b39a52a02f260fca0d0a36a8f913572bfdb631f55971a3b10b8dd9a875f9776ca61371741544e6ccc064dd41e'
+  #}
 
   # Use the database for sessions instead of the cookie-based default,
   # which shouldn't be used to store highly confidential information
