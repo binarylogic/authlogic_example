@@ -1,6 +1,6 @@
-require 'test_helper'
+require 'test/unit'
 
-class <%= class_name %>Test < ActiveSupport::TestCase
+class <%= class_name %>Test < Test::Unit::TestCase
   # Replace this with your real tests.
   test "the truth" do
     assert true

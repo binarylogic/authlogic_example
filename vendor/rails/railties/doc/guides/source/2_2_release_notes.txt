@@ -149,15 +149,16 @@ You can now specify conditions on join tables using a hash. This is a big help i
 [source, ruby]
 -------------------------------------------------------
 class Photo < ActiveRecord::Base
-  belongs_to :product
+  belongs_to :Product
 end
 
 class Product < ActiveRecord::Base
-  has_many :photos
+  has_many :products
 end
 
 # Get all products with copyright-free photos:
-Product.all(:joins => :photos, :conditions => { :photos => { :copyright => false }})
+Product.find(:all, :joins => :photo,
+  :conditions => { :photos => { :copyright => false }})
 -------------------------------------------------------
 
 * More information:
@@ -196,8 +197,6 @@ User.find_by_name!('Moby')
 Active Record association proxies now respect the scope of methods on the proxied object. Previously (given User has_one :account) +@user.account.private_method+ would call the private method on the associated Account object. That fails in Rails 2.2; if you need this functionality, you should use +@user.account.send(:private_method)+ (or make the method public instead of private or protected). Please note that if you're overriding +method_missing+, you should also override +respond_to+ to match the behavior in order for associations to function normally.
 
 * Lead Contributor: Adam Milligan
-* More information:
- - link:http://afreshcup.com/2008/10/24/rails-22-change-private-methods-on-association-proxies-are-private/[Rails 2.2 Change: Private Methods on Association Proxies are Private]
 
 === Other ActiveRecord Changes
 
@@ -349,7 +348,7 @@ Lead Contributor: link:http://workingwithrails.com/person/5830-daniel-schierbeck
 * The addition of +ActiveSupport::Rescuable+ allows any class to mix in the +rescue_from+ syntax.
 * +past?+, +today?+ and +future?+ for +Date+ and +Time+ classes to facilitate date/time comparisons.
 * +Array#second+ through +Array#tenth+ as aliases for +Array#[1]+ through +Array#[9]+
-* +Enumerable#many?+ to encapsulate +collection.size > 1+
+* +Enumerable#several?+ to encapsulate +collection.size > 1+
 * +Inflector#parameterize+ produces a URL-ready version of its input, for use in +to_param+.
 * +Time#advance+ recognizes fractional days and weeks, so you can do +1.7.weeks.ago+, +1.5.hours.since+, and so on.
 * The included TzInfo library has been upgraded to version 0.3.11.

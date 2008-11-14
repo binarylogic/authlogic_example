@@ -41,10 +41,6 @@ class ViewRenderTest < Test::Unit::TestCase
     assert_equal "The secret is in the sauce\n", @view.render("test/dot.directory/render_file_with_ivar")
   end
 
-  def test_render_has_access_current_template
-    assert_equal "test/template.erb", @view.render("test/template.erb")
-  end
-
   def test_render_update
     # TODO: You should not have to stub out template because template is self!
     @view.instance_variable_set(:@template, @view)
@@ -161,15 +157,5 @@ class ViewRenderTest < Test::Unit::TestCase
   def test_render_inline_with_locals_and_compilable_custom_type
     ActionView::Template.register_template_handler :foo, CustomHandler
     assert_equal 'source: "Hello, <%= name %>!"', @view.render(:inline => "Hello, <%= name %>!", :locals => { :name => "Josh" }, :type => :foo)
-  end
-
-  def test_render_with_layout
-    assert_equal %(<title></title>\nHello world!\n),
-      @view.render(:file => "test/hello_world.erb", :layout => "layouts/yield")
-  end
-
-  def test_render_with_nested_layout
-    assert_equal %(<title>title</title>\n<div id="column">column</div>\n<div id="content">content</div>\n),
-      @view.render(:file => "test/nested_layout.erb", :layout => "layouts/yield")
   end
 end

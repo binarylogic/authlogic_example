@@ -159,19 +159,13 @@ HEADER
       end
       
       def indexes(table, stream)
-        if (indexes = @connection.indexes(table)).any?
-          add_index_statements = indexes.map do |index|
-            statment_parts = [ ('add_index ' + index.table.inspect) ]
-            statment_parts << index.columns.inspect
-            statment_parts << (':name => ' + index.name.inspect)
-            statment_parts << ':unique => true' if index.unique
-
-            '  ' + statment_parts.join(', ')
-          end
-
-          stream.puts add_index_statements.sort.join("\n")
+        indexes = @connection.indexes(table)
+        indexes.each do |index|
+          stream.print "  add_index #{index.table.inspect}, #{index.columns.inspect}, :name => #{index.name.inspect}"
+          stream.print ", :unique => true" if index.unique
           stream.puts
         end
+        stream.puts unless indexes.empty?
       end
   end
 end
