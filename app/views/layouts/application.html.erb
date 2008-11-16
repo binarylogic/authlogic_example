@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<span style="float: right;"><%= link_to "Source code", "http://github.com/binarylogic/authlogic_example" %> | <%= link_to "Tutorial", "http://www.binarylogic.com/2008/11/3/tutorial-authlogic-basic-setup" %> | <%= link_to "Authlogic Repo", "http://github.com/binarylogic/authlogic" %> | <%= link_to "Authlogic Doc", "http://authlogic.rubyforge.org/" %></span>
+<span style="float: right;"><%= link_to "Source code", "http://github.com/binarylogic/authlogic_example" %> | <%= link_to "Setup tutorial", "http://www.binarylogic.com/2008/11/3/tutorial-authlogic-basic-setup" %> | <%= link_to "Password reset tutorial", "http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic" %> | <%= link_to "Authlogic Repo", "http://github.com/binarylogic/authlogic" %> | <%= link_to "Authlogic Doc", "http://authlogic.rubyforge.org/" %></span>
 <h1>Authlogic Example App</h1>
 <%= pluralize User.logged_in.count, "user" %> currently logged in<br /> <!-- This based on last_request_at, if they were active < 10 minutes they are logged in -->
 <br />
@@ -19,7 +19,8 @@
 
 <% if !current_user %>
   <%= link_to "Register", new_account_path %> |
-  <%= link_to "Log In", new_user_session_path %>
+  <%= link_to "Log In", new_user_session_path %> |
+  <%= link_to "Forgot password", forgot_password_account_path %>
 <% else %>
   <%= link_to "My Account", account_path %> |
   <%= link_to "Logout", user_session_path, :method => :delete, :confirm => "Are you sure you want to logout?" %>
