@@ -1,6 +1,6 @@
 <h1>Change My Password</h1>
 
-<% form_for @user, :url => update_password_account_path(:password_reset_token => params[:password_reset_token]) do |f| %>
+<% form_for @user, :url => password_reset_path(:perishable_token => params[:perishable_token]), :method => :put do |f| %>
   <%= f.error_messages %>
   <%= f.label :password %><br />
   <%= f.password_field :password %><br />
