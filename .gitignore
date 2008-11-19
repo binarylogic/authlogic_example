@@ -1,4 +1,5 @@
 *.sqlite3
+config/initializers/action_mailer_settings.rb
 config/deploy.rb
 db/schema.rb
 config/database.yml

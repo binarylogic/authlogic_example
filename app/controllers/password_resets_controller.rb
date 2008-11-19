@@ -15,7 +15,7 @@ class PasswordResetsController < ApplicationController
       redirect_to default_url
     else
       flash[:notice] = "No user was found with that email address"
-      render :action => :forgot_password
+      render :action => :new
     end
   end
   
@@ -30,7 +30,7 @@ class PasswordResetsController < ApplicationController
       flash[:notice] = "Password successfully updated"
       redirect_to account_url
     else
-      render :action => :edit_password
+      render :action => :edit
     end
   end
 
