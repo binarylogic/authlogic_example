@@ -3,5 +3,5 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :password_resets
   map.resources :users
   map.resource :user_session
-  map.default "/", :controller => "user_sessions", :action => "new"
+  map.root :controller => "user_sessions", :action => "new"
 end

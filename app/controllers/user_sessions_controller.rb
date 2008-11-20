@@ -8,11 +8,21 @@ class UserSessionsController < ApplicationController
   
   def create
     @user_session = UserSession.new(params[:user_session])
-    if @user_session.save
-      flash[:notice] = "Login successful!"
-      redirect_back_or_default account_url
-    else
-      render :action => :new
+    # We are saving with a block to accomodate for OpenID authentication
+    # If you are not using OpenID you can save without a block:
+    #
+    #   if @user_session.save
+    #     # ... successful login
+    #   else
+    #     # ... unsuccessful login
+    #   end
+    @user_session.save do |result|
+      if result
+        flash[:notice] = "Login successful!"
+        redirect_back_or_default account_url
+      else
+        render :action => :new
+      end
     end
   end
   

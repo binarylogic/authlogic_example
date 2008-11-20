@@ -1,8 +1,14 @@
-<p>
-  <b>Login:</b>
-  <%=h @user.login %>
-</p>
-
+<% if @user.openid_identifier.blank? %>
+  <p>
+    <b>Login:</b>
+    <%=h @user.login %>
+  </p>
+<% else %>
+  <p>
+    <b>OpenID:</b>
+    <%=h @user.openid_identifier %>
+  </p>
+<% end %>
 <p>
   <b>Email:</b>
   <%=h @user.email %>
