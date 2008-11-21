@@ -1,10 +1,13 @@
 class User < ActiveRecord::Base
-  acts_as_authentic :allow_blank_login_and_password_fields => true
+  acts_as_authentic :login_field_validation_options => {:if => :openid_identifier_blank?}, :password_field_validation_options => {:if => :openid_identifier_blank?}
   
-  validates_presence_of :login, :if => Proc.new { |user| user.openid_identifier.blank? }
-  validates_presence_of :password, :if => Proc.new { |user| user.openid_identifier.blank? }
   validate :normalize_openid_identifier
   validates_uniqueness_of :openid_identifier, :allow_blank => true
+  
+  # For acts_as_authentic configuration
+  def openid_identifier_blank?
+    openid_identifier.blank?
+  end
   
   def deliver_password_reset_instructions!
     reset_perishable_token!
