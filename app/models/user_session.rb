@@ -1,4 +1,6 @@
 class UserSession < Authlogic::Session::Base
+  # ALL of the following code is for OpenID integration. If you are not using OpenID in your app
+  # just remove all of the following code, to the point where you UserSession class is completely blank.
   attr_accessor :openid_identifier
   
   def authenticating_with_openid?
