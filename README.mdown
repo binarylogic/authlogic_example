@@ -1,14 +1,12 @@
 # Authlogic Example App
 
-This is an example of how to use Authlogic in a rails app. Authlogic is an object based authentication solution that handles all of the non sense for you. It's as easy as ActiveRecord is with a database.
+This is an example of how to use Authlogic in a rails app. Authlogic is a clean, simple, and unobtrusive ruby authentication solution.
 
-This application live: [http://authlogicexample.binarylogic.com](http://authlogicexample.binarylogic.com)
-
-Basic setup tutorial: [http://www.binarylogic.com/2008/11/3/tutorial-authlogic-basic-setup](http://www.binarylogic.com/2008/11/3/tutorial-authlogic-basic-setup)
-Reset passwords tutorial: [http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic](http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic)
-Open ID tutorial: [http://www.binarylogic.com/2008/11/21/tutorial-using-openid-with-authlogic](http://www.binarylogic.com/2008/11/21/tutorial-using-openid-with-authlogic)
-
-Authlogic: [http://github.com/binarylogic/authlogic](http://github.com/binarylogic/authlogic)
+* This application live: [http://authlogicexample.binarylogic.com](http://authlogicexample.binarylogic.com)
+* Basic setup tutorial: [http://www.binarylogic.com/2008/11/3/tutorial-authlogic-basic-setup](http://www.binarylogic.com/2008/11/3/tutorial-authlogic-basic-setup)
+* Reset passwords tutorial: [http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic](http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic)
+* Open ID tutorial: [http://www.binarylogic.com/2008/11/21/tutorial-using-openid-with-authlogic](http://www.binarylogic.com/2008/11/21/tutorial-using-openid-with-authlogic)
+* Authlogic: [http://github.com/binarylogic/authlogic](http://github.com/binarylogic/authlogic)
 
 
 Copyright (c) 2008 [Ben Johnson](http://github.com/binarylogic) of [Binary Logic](http://www.binarylogic.com), released under the MIT license

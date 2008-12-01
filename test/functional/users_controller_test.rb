@@ -1,42 +1,34 @@
 require 'test_helper'
 
 class UsersControllerTest < ActionController::TestCase
-=begin
   test "should get new" do
     get :new
     assert_response :success
   end
-
+  
   test "should create user" do
     assert_difference('User.count') do
-      post :create, :user => { }
+      post :create, :user => { :login => "ben", :password => "benrocks", :password_confirmation => "benrocks", :email => "myemail@email.com" }
     end
-
-    assert_redirected_to user_path(assigns(:user))
+    
+    assert_redirected_to account_path
   end
-=end
+  
   test "should show user" do
+    set_session_for(users(:ben))
     get :show
     assert_response :success
   end
 
-=begin
   test "should get edit" do
-    get :edit, :id => users(:one).id
+    set_session_for(users(:ben))
+    get :edit, :id => users(:ben).id
     assert_response :success
   end
 
   test "should update user" do
-    put :update, :id => users(:one).id, :user => { }
-    assert_redirected_to user_path(assigns(:user))
+    set_session_for(users(:ben))
+    put :update, :id => users(:ben).id, :user => { }
+    assert_redirected_to account_path
   end
-
-  test "should destroy user" do
-    assert_difference('User.count', -1) do
-      delete :destroy, :id => users(:one).id
-    end
-
-    assert_redirected_to users_path
-  end
-=end
 end
