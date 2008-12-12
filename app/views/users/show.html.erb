@@ -1,7 +1,3 @@
-<!--
-  The following is for OpenID, if you are not using OpenID in your app remove
-  the OpenID if statement and field below.
--->
 <% if @user.openid_identifier.blank? %>
   <p>
     <b>Login:</b>
@@ -13,10 +9,6 @@
     <%=h @user.openid_identifier %>
   </p>
 <% end %>
-<p>
-  <b>Email:</b>
-  <%=h @user.email %>
-</p>
 
 <p>
   <b>Login count:</b>

@@ -5,7 +5,6 @@ class User < ActiveRecord::Base
   
   validate :normalize_openid_identifier
   validates_uniqueness_of :openid_identifier, :allow_blank => true
-  validates_length_of :email, :minimum => 500, :unless => "true"
   
   # For acts_as_authentic configuration
   def openid_identifier_blank?
