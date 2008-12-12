@@ -1,18 +1,8 @@
-<!--
-  The following is for OpenID, if you are not using OpenID in your app remove
-  the OpenID if statement and field below.
--->
-<% if @user.openid_identifier.blank? %>
-  <p>
-    <b>Login:</b>
-    <%=h @user.login %>
-  </p>
-<% else %>
-  <p>
-    <b>OpenID:</b>
-    <%=h @user.openid_identifier %>
-  </p>
-<% end %>
+<p>
+  <b>Login:</b>
+  <%=h @user.login %>
+</p>
+
 <p>
   <b>Email:</b>
   <%=h @user.email %>

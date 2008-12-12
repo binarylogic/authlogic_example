@@ -7,13 +7,6 @@
 <%= form.label :password_confirmation %><br />
 <%= form.password_field :password_confirmation %><br />
 <br />
-<!--
-  The following is for OpenID integration, if you are not using OpenID in your app
-  simple remove the :openid_identifier label and field
--->
-<%= form.label :openid_identifier, "Or use OpenID instead of a standard login / password" %><br />
-<%= form.text_field :openid_identifier %><br />
-<br />
 <%= form.label :email %><br />
 <%= form.text_field :email %><br />
 <br />
