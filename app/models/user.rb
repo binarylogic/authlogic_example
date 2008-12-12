@@ -1,6 +1,4 @@
 class User < ActiveRecord::Base
-  # ALL of the following code is for OpenID integration. If you are not using OpenID in your app
-  # just remove all of the following code, to the point where you User class is completely blank.
   acts_as_authentic :login_field_validation_options => {:if => :openid_identifier_blank?}, :password_field_validation_options => {:if => :openid_identifier_blank?}
   
   validate :normalize_openid_identifier
@@ -9,11 +7,6 @@ class User < ActiveRecord::Base
   # For acts_as_authentic configuration
   def openid_identifier_blank?
     openid_identifier.blank?
-  end
-  
-  def deliver_password_reset_instructions!
-    reset_perishable_token!
-    Notifier.deliver_password_reset_instructions(self)
   end
   
   private
