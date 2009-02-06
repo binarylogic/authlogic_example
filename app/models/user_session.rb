@@ -1,6 +1,10 @@
 class UserSession < Authlogic::Session::Base
   attr_accessor :openid_identifier
   
+  def login=(v)
+    raise v.inspect
+  end
+  
   def authenticating_with_openid?
     !openid_identifier.blank? || controller.params[:open_id_complete]
   end
