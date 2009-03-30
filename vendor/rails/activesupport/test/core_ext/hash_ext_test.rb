@@ -1,4 +1,5 @@
 require 'abstract_unit'
+require 'builder'
 
 class HashExtTest < Test::Unit::TestCase
   def setup
@@ -173,6 +174,13 @@ class HashExtTest < Test::Unit::TestCase
     assert_equal 2, hash['b']
   end
 
+  def test_indifferent_reverse_merging
+    hash = HashWithIndifferentAccess.new('some' => 'value', 'other' => 'value')
+    hash.reverse_merge!(:some => 'noclobber', :another => 'clobber')
+    assert_equal 'value', hash[:some]
+    assert_equal 'clobber', hash[:another]
+  end
+
   def test_indifferent_deleting
     get_hash = proc{ { :a => 'foo' }.with_indifferent_access }
     hash = get_hash.call
@@ -233,7 +241,7 @@ class HashExtTest < Test::Unit::TestCase
       { :failure => "stuff", :funny => "business" }.assert_valid_keys(:failure, :funny)
     end
 
-    assert_raises(ArgumentError, "Unknown key(s): failore") do
+    assert_raise(ArgumentError, "Unknown key(s): failore") do
       { :failore => "stuff", :funny => "business" }.assert_valid_keys([ :failure, :funny ])
       { :failore => "stuff", :funny => "business" }.assert_valid_keys(:failure, :funny)
     end
@@ -286,10 +294,14 @@ class HashExtTest < Test::Unit::TestCase
     # Should return a new hash with only the given keys.
     assert_equal expected, original.slice(:a, :b)
     assert_not_equal expected, original
+  end
+
+  def test_slice_inplace
+    original = { :a => 'x', :b => 'y', :c => 10 }
+    expected = { :c => 10 }
 
     # Should replace the hash with only the given keys.
     assert_equal expected, original.slice!(:a, :b)
-    assert_equal expected, original
   end
 
   def test_slice_with_an_array_key
@@ -299,10 +311,14 @@ class HashExtTest < Test::Unit::TestCase
     # Should return a new hash with only the given keys when given an array key.
     assert_equal expected, original.slice([:a, :b], :c)
     assert_not_equal expected, original
+  end
+
+  def test_slice_inplace_with_an_array_key
+    original = { :a => 'x', :b => 'y', :c => 10, [:a, :b] => "an array key" }
+    expected = { :a => 'x', :b => 'y' }
 
     # Should replace the hash with only the given keys when given an array key.
     assert_equal expected, original.slice!([:a, :b], :c)
-    assert_equal expected, original
   end
 
   def test_slice_with_splatted_keys
@@ -321,11 +337,17 @@ class HashExtTest < Test::Unit::TestCase
       # Should return a new hash with only the given keys.
       assert_equal expected, original.slice(*keys), keys.inspect
       assert_not_equal expected, original
+    end
+  end
 
+  def test_indifferent_slice_inplace
+    original = { :a => 'x', :b => 'y', :c => 10 }.with_indifferent_access
+    expected = { :c => 10 }.with_indifferent_access
+
+    [['a', 'b'], [:a, :b]].each do |keys|
       # Should replace the hash with only the given keys.
       copy = original.dup
       assert_equal expected, copy.slice!(*keys)
-      assert_equal expected, copy
     end
   end
 
@@ -358,12 +380,10 @@ class HashExtTest < Test::Unit::TestCase
     assert_nothing_raised { original.except(:a) }
   end
 
-  uses_mocha 'except with expectation' do
-    def test_except_with_mocha_expectation_on_original
-      original = { :a => 'x', :b => 'y' }
-      original.expects(:delete).never
-      original.except(:a)
-    end
+  def test_except_with_mocha_expectation_on_original
+    original = { :a => 'x', :b => 'y' }
+    original.expects(:delete).never
+    original.except(:a)
   end
 end
 
@@ -402,6 +422,13 @@ class HashToXmlTest < Test::Unit::TestCase
     assert_equal "<person>", xml.first(8)
     assert xml.include?(%(<street-name>Paulina</street-name>))
     assert xml.include?(%(<name>David</name>))
+  end
+
+  def test_one_level_camelize_true
+    xml = { :name => "David", :street_name => "Paulina" }.to_xml(@xml_options.merge(:camelize => true))
+    assert_equal "<Person>", xml.first(8)
+    assert xml.include?(%(<StreetName>Paulina</StreetName>))
+    assert xml.include?(%(<Name>David</Name>))
   end
 
   def test_one_level_with_types
@@ -468,6 +495,15 @@ class HashToXmlTest < Test::Unit::TestCase
   def test_three_levels_with_array
     xml = { :name => "David", :addresses => [{ :streets => [ { :name => "Paulina" }, { :name => "Paulina" } ] } ] }.to_xml(@xml_options)
     assert xml.include?(%(<addresses type="array"><address><streets type="array"><street><name>))
+  end
+
+  def test_timezoned_attributes
+    xml = {
+      :created_at => Time.utc(1999,2,2),
+      :local_created_at => Time.utc(1999,2,2).in_time_zone('Eastern Time (US & Canada)')
+    }.to_xml(@xml_options)
+    assert_match %r{<created-at type=\"datetime\">1999-02-02T00:00:00Z</created-at>}, xml
+    assert_match %r{<local-created-at type=\"datetime\">1999-02-01T19:00:00-05:00</local-created-at>}, xml
   end
 
   def test_single_record_from_xml
@@ -864,7 +900,13 @@ class QueryTest < Test::Unit::TestCase
   end
 
   def test_expansion_count_is_limited
-    assert_raises RuntimeError do
+    expected = {
+      'ActiveSupport::XmlMini_REXML'    => 'RuntimeError',
+      'ActiveSupport::XmlMini_Nokogiri' => 'Nokogiri::XML::SyntaxError',
+      'ActiveSupport::XmlMini_LibXML'   => 'LibXML::XML::Error',
+    }[ActiveSupport::XmlMini.backend.name].constantize
+
+    assert_raise expected do
       attack_xml = <<-EOT
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE member [

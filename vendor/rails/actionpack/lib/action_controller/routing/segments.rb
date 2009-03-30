@@ -3,7 +3,11 @@ module ActionController
     class Segment #:nodoc:
       RESERVED_PCHAR = ':@&=+$,;'
       SAFE_PCHAR = "#{URI::REGEXP::PATTERN::UNRESERVED}#{RESERVED_PCHAR}"
-      UNSAFE_PCHAR = Regexp.new("[^#{SAFE_PCHAR}]", false, 'N').freeze
+      if RUBY_VERSION >= '1.9'
+        UNSAFE_PCHAR = Regexp.new("[^#{SAFE_PCHAR}]", false).freeze
+      else
+        UNSAFE_PCHAR = Regexp.new("[^#{SAFE_PCHAR}]", false, 'N').freeze
+      end
 
       # TODO: Convert :is_optional accessor to read only
       attr_accessor :is_optional
@@ -11,6 +15,10 @@ module ActionController
 
       def initialize
         @is_optional = false
+      end
+
+      def number_of_captures
+        Regexp.new(regexp_chunk).number_of_captures
       end
 
       def extraction_code
@@ -82,6 +90,10 @@ module ActionController
       def regexp_chunk
         chunk = Regexp.escape(value)
         optional? ? Regexp.optionalize(chunk) : chunk
+      end
+
+      def number_of_captures
+        0
       end
 
       def build_pattern(pattern)
@@ -183,21 +195,23 @@ module ActionController
       end
 
       def regexp_chunk
-        if regexp
-          if regexp_has_modifiers?
-            "(#{regexp.to_s})"
-          else
-            "(#{regexp.source})"
-          end
-        else
-          "([^#{Routing::SEPARATORS.join}]+)"
-        end
+        regexp ? regexp_string : default_regexp_chunk
+      end
+
+      def regexp_string
+        regexp_has_modifiers? ? "(#{regexp.to_s})" : "(#{regexp.source})"
+      end
+
+      def default_regexp_chunk
+        "([^#{Routing::SEPARATORS.join}]+)"
+      end
+
+      def number_of_captures
+        regexp ? regexp.number_of_captures + 1 : 1
       end
 
       def build_pattern(pattern)
-        chunk = regexp_chunk
-        chunk = "(#{chunk})" if Regexp.new(chunk).number_of_captures == 0
-        pattern = "#{chunk}#{pattern}"
+        pattern = "#{regexp_chunk}#{pattern}"
         optional? ? Regexp.optionalize(pattern) : pattern
       end
 
@@ -271,8 +285,12 @@ module ActionController
         "params[:#{key}] = PathSegment::Result.new_escaped((match[#{next_capture}]#{" || " + default.inspect if default}).split('/'))#{" if match[" + next_capture + "]" if !default}"
       end
 
-      def regexp_chunk
-        regexp || "(.*)"
+      def default_regexp_chunk
+        "(.*)"
+      end
+
+      def number_of_captures
+        regexp ? regexp.number_of_captures : 1
       end
 
       def optionality_implied?
@@ -286,5 +304,40 @@ module ActionController
         end
       end
     end
+    
+    # The OptionalFormatSegment allows for any resource route to have an optional
+    # :format, which decreases the amount of routes created by 50%.
+    class OptionalFormatSegment < DynamicSegment
+    
+      def initialize(key = nil, options = {})
+        super(:format, {:optional => true}.merge(options))            
+      end
+    
+      def interpolation_chunk
+        "." + super
+      end
+    
+      def regexp_chunk
+        '/|(\.[^/?\.]+)?'
+      end
+    
+      def to_s
+        '(.:format)?'
+      end
+
+      def extract_value
+        "#{local_name} = options[:#{key}] && options[:#{key}].to_s.downcase"
+      end
+
+      #the value should not include the period (.)
+      def match_extraction(next_capture)
+        %[
+          if (m = match[#{next_capture}])
+            params[:#{key}] = URI.unescape(m.from(1))
+          end
+        ]
+      end
+    end
+    
   end
 end

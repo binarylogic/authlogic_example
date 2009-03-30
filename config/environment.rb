@@ -26,13 +26,14 @@ Rails::Initializer.run do |config|
   # config.gem "hpricot", :version => '0.6', :source => "http://code.whytheluckystiff.net"
   # config.gem "aws-s3", :lib => "aws/s3"
   config.gem "authlogic"
+  config.gem "authlogic-oid", :lib => "authlogic_openid"
 
   # Only load the plugins named here, in the order given. By default, all plugins 
   # in vendor/plugins are loaded in alphabetical order.
   # :all can be used as a placeholder for all plugins not explicitly named
   # config.plugins = [ :exception_notification, :ssl_requirement, :all ]
-  config.plugin_paths += ["#{RAILS_ROOT}/../../Libs"]
-  config.plugins = [:authlogic, :open_id_authentication]
+  #config.plugin_paths += ["#{RAILS_ROOT}/../../Libs"]
+  #config.plugins = [:authlogic, :authlogic_openid, :open_id_authentication]
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )

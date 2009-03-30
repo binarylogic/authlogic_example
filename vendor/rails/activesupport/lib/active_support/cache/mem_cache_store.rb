@@ -2,8 +2,20 @@ require 'memcache'
 
 module ActiveSupport
   module Cache
+    # A cache store implementation which stores data in Memcached:
+    # http://www.danga.com/memcached/
+    #
+    # This is currently the most popular cache store for production websites.
+    #
+    # Special features:
+    # - Clustering and load balancing. One can specify multiple memcached servers,
+    #   and MemCacheStore will load balance between all available servers. If a
+    #   server goes down, then MemCacheStore will ignore it until it goes back
+    #   online.
+    # - Time-based expiry support. See #write and the +:expires_in+ option.
+    # - Per-request in memory cache for all communication with the MemCache server(s).
     class MemCacheStore < Store
-      module Response
+      module Response # :nodoc:
         STORED      = "STORED\r\n"
         NOT_STORED  = "NOT_STORED\r\n"
         EXISTS      = "EXISTS\r\n"
@@ -13,15 +25,25 @@ module ActiveSupport
 
       attr_reader :addresses
 
+      # Creates a new MemCacheStore object, with the given memcached server
+      # addresses. Each address is either a host name, or a host-with-port string
+      # in the form of "host_name:port". For example:
+      #
+      #   ActiveSupport::Cache::MemCacheStore.new("localhost", "server-downstairs.localnetwork:8229")
+      #
+      # If no addresses are specified, then MemCacheStore will connect to
+      # localhost port 11211 (the default memcached port).
       def initialize(*addresses)
         addresses = addresses.flatten
         options = addresses.extract_options!
         addresses = ["localhost"] if addresses.empty?
         @addresses = addresses
         @data = MemCache.new(addresses, options)
+
+        extend Strategy::LocalCache
       end
 
-      def read(key, options = nil)
+      def read(key, options = nil) # :nodoc:
         super
         @data.get(key, raw?(options))
       rescue MemCache::MemCacheError => e
@@ -29,8 +51,13 @@ module ActiveSupport
         nil
       end
 
-      # Set key = value. Pass :unless_exist => true if you don't
-      # want to update the cache if the key is already set.
+      # Writes a value to the cache.
+      #
+      # Possible options:
+      # - +:unless_exist+ - set to true if you don't want to update the cache
+      #   if the key is already set.
+      # - +:expires_in+ - the number of seconds that this value may stay in
+      #   the cache. See ActiveSupport::Cache::Store#write for an example.
       def write(key, value, options = nil)
         super
         method = options && options[:unless_exist] ? :add : :set
@@ -44,7 +71,7 @@ module ActiveSupport
         false
       end
 
-      def delete(key, options = nil)
+      def delete(key, options = nil) # :nodoc:
         super
         response = @data.delete(key, expires_in(options))
         response == Response::DELETED
@@ -53,13 +80,14 @@ module ActiveSupport
         false
       end
 
-      def exist?(key, options = nil)
+      def exist?(key, options = nil) # :nodoc:
         # Doesn't call super, cause exist? in memcache is in fact a read
         # But who cares? Reading is very fast anyway
+        # Local cache is checked first, if it doesn't know then memcache itself is read from
         !read(key, options).nil?
       end
 
-      def increment(key, amount = 1)
+      def increment(key, amount = 1) # :nodoc:
         log("incrementing", key, amount)
 
         response = @data.incr(key, amount)
@@ -68,16 +96,17 @@ module ActiveSupport
         nil
       end
 
-      def decrement(key, amount = 1)
+      def decrement(key, amount = 1) # :nodoc:
         log("decrement", key, amount)
-
         response = @data.decr(key, amount)
         response == Response::NOT_FOUND ? nil : response
       rescue MemCache::MemCacheError
         nil
       end
 
-      def delete_matched(matcher, options = nil)
+      def delete_matched(matcher, options = nil) # :nodoc:
+        # don't do any local caching at present, just pass
+        # through and let the error happen
         super
         raise "Not supported by Memcache"
       end

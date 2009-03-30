@@ -12,7 +12,7 @@ module ActiveSupport
         if benchmark = ARGV.include?('--benchmark')  # HAX for rake test
           { :benchmark => true,
             :runs => 4,
-            :metrics => [:process_time, :memory, :objects, :gc_runs, :gc_time],
+            :metrics => [:wall_time, :memory, :objects, :gc_runs, :gc_time],
             :output => 'tmp/performance' }
         else
           { :benchmark => false,
@@ -124,7 +124,7 @@ module ActiveSupport
 
         def environment
           unless defined? @env
-            app = "#{$1}.#{$2}" if `git branch -v` =~ /^\* (\S+)\s+(\S+)/
+            app = "#{$1}.#{$2}" if File.directory?('.git') && `git branch -v` =~ /^\* (\S+)\s+(\S+)/
 
             rails = Rails::VERSION::STRING
             if File.directory?('vendor/rails/.git')

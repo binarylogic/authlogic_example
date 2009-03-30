@@ -56,6 +56,18 @@ class AttributeMethodsTest < ActiveRecord::TestCase
     assert_equal myobj, topic.content
   end
 
+  def test_typecast_attribute_from_select_to_false
+    topic = Topic.create(:title => 'Budget')
+    topic = Topic.find(:first, :select => "topics.*, 1=2 as is_test")
+    assert !topic.is_test?
+  end
+
+  def test_typecast_attribute_from_select_to_true
+    topic = Topic.create(:title => 'Budget')
+    topic = Topic.find(:first, :select => "topics.*, 2=2 as is_test")
+    assert topic.is_test?
+  end
+
   def test_kernel_methods_not_implemented_in_activerecord
     %w(test name display y).each do |method|
       assert !ActiveRecord::Base.instance_method_already_implemented?(method), "##{method} is defined"
@@ -88,7 +100,7 @@ class AttributeMethodsTest < ActiveRecord::TestCase
     %w(save create_or_update).each do |method|
       klass = Class.new ActiveRecord::Base
       klass.class_eval "def #{method}() 'defined #{method}' end"
-      assert_raises ActiveRecord::DangerousAttributeError do
+      assert_raise ActiveRecord::DangerousAttributeError do
         klass.instance_method_already_implemented?(method)
       end
     end
@@ -233,8 +245,9 @@ class AttributeMethodsTest < ActiveRecord::TestCase
 
     topic = @target.new(:title => "The pros and cons of programming naked.")
     assert !topic.respond_to?(:title)
-    assert_raise(NoMethodError) { topic.title }
-    topic.send(:title)
+    exception = assert_raise(NoMethodError) { topic.title }
+    assert_equal "Attempt to call private method", exception.message
+    assert_equal "I'm private", topic.send(:title)
   end
 
   def test_write_attributes_respect_access_control
@@ -242,7 +255,8 @@ class AttributeMethodsTest < ActiveRecord::TestCase
 
     topic = @target.new
     assert !topic.respond_to?(:title=)
-    assert_raise(NoMethodError) { topic.title = "Pants"}
+    exception = assert_raise(NoMethodError) { topic.title = "Pants"}
+    assert_equal "Attempt to call private method", exception.message
     topic.send(:title=, "Very large pants")
   end
 
@@ -251,7 +265,8 @@ class AttributeMethodsTest < ActiveRecord::TestCase
 
     topic = @target.new(:title => "Isaac Newton's pants")
     assert !topic.respond_to?(:title?)
-    assert_raise(NoMethodError) { topic.title? }
+    exception = assert_raise(NoMethodError) { topic.title? }
+    assert_equal "Attempt to call private method", exception.message
     assert topic.send(:title?)
   end
 

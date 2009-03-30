@@ -23,6 +23,7 @@ cd "#{root_dir}/activesupport" do
   build_results[:activesupport] = system 'rake'
 end
 
+rm_f "#{root_dir}/activerecord/debug.log"
 cd "#{root_dir}/activerecord" do
   puts
   puts "[CruiseControl] Building ActiveRecord with MySQL"
@@ -37,13 +38,12 @@ cd "#{root_dir}/activerecord" do
   build_results[:activerecord_postgresql8] = system 'rake test_postgresql'
 end
 
-# Sqlite2 is disabled until tests are fixed
-# cd "#{root_dir}/activerecord" do
-#  puts
-#  puts "[CruiseControl] Building ActiveRecord with SQLite 2"
-#  puts
-#  build_results[:activerecord_sqlite] = system 'rake test_sqlite'
-# end
+cd "#{root_dir}/activerecord" do
+ puts
+ puts "[CruiseControl] Building ActiveRecord with SQLite 2"
+ puts
+ build_results[:activerecord_sqlite] = system 'rake test_sqlite'
+end
 
 cd "#{root_dir}/activerecord" do
   puts
@@ -59,6 +59,7 @@ cd "#{root_dir}/activemodel" do
   build_results[:activemodel] = system 'rake'
 end
 
+rm_f "#{root_dir}/activeresource/debug.log"
 cd "#{root_dir}/activeresource" do
   puts
   puts "[CruiseControl] Building ActiveResource"
@@ -97,9 +98,9 @@ puts "[CruiseControl]   #{`mysql --version`}"
 puts "[CruiseControl]   #{`pg_config --version`}"
 puts "[CruiseControl]   SQLite2: #{`sqlite -version`}"
 puts "[CruiseControl]   SQLite3: #{`sqlite3 -version`}"
-`gem env`.each {|line| print "[CruiseControl]   #{line}"}
+`gem env`.each_line {|line| print "[CruiseControl]   #{line}"}
 puts "[CruiseControl]   Local gems:"
-`gem list`.each {|line| print "[CruiseControl]     #{line}"}
+`gem list`.each_line {|line| print "[CruiseControl]     #{line}"}
 
 failures = build_results.select { |key, value| value == false }
 

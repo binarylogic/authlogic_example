@@ -2,7 +2,6 @@ require 'generators/generator_test_helper'
 require 'abstract_unit'
 
 class RailsScaffoldGeneratorTest < GeneratorTestCase
-  
   def test_scaffolded_names
     g = Rails::Generator::Base.instance('scaffold', %w(ProductLine))
     assert_equal "ProductLines", g.controller_name
@@ -20,7 +19,7 @@ class RailsScaffoldGeneratorTest < GeneratorTestCase
     assert_generated_controller_for :products do |f|
 
       assert_has_method f, :index do |name, m|
-        assert_match /@products = Product\.find\(:all\)/, m, "#{name} should query products table"
+        assert_match /@products = Product\.all/, m, "#{name} should query products table"
       end
 
       assert_has_method f, :show, :edit, :update, :destroy do |name, m|
@@ -43,6 +42,7 @@ class RailsScaffoldGeneratorTest < GeneratorTestCase
     assert_generated_unit_test_for :product
     assert_generated_fixtures_for :products
     assert_generated_helper_for :products
+    assert_generated_helper_test_for :products
     assert_generated_stylesheet :scaffold
     assert_generated_views_for :products, "index.html.erb", "new.html.erb", "edit.html.erb", "show.html.erb"
 
@@ -58,6 +58,7 @@ class RailsScaffoldGeneratorTest < GeneratorTestCase
     assert_generated_unit_test_for :product
     assert_generated_fixtures_for :products
     assert_generated_helper_for :products
+    assert_generated_helper_test_for :products
     assert_generated_stylesheet :scaffold
     assert_generated_views_for :products, "index.html.erb","new.html.erb","edit.html.erb","show.html.erb"
     assert_skipped_migration :create_products
@@ -70,7 +71,7 @@ class RailsScaffoldGeneratorTest < GeneratorTestCase
     assert_generated_controller_for :products do |f|
 
       assert_has_method f, :index do |name, m|
-        assert_match /@products = Product\.find\(:all\)/, m, "#{name} should query products table"
+        assert_match /@products = Product\.all/, m, "#{name} should query products table"
       end
 
       assert_has_method f, :show, :edit, :update, :destroy do |name, m|
@@ -93,6 +94,7 @@ class RailsScaffoldGeneratorTest < GeneratorTestCase
     assert_generated_unit_test_for :product
     assert_generated_fixtures_for :products
     assert_generated_helper_for :products
+    assert_generated_helper_test_for :products
     assert_generated_stylesheet :scaffold
     assert_generated_views_for :products, "index.html.erb", "new.html.erb", "edit.html.erb", "show.html.erb"
 
@@ -105,17 +107,15 @@ class RailsScaffoldGeneratorTest < GeneratorTestCase
     assert_added_route_for :products
   end
 
-  uses_mocha("scaffold_force_plural_names") do
-    def test_scaffolded_plural_names
-      Rails::Generator::Base.logger.expects(:warning)
-      g = Rails::Generator::Base.instance('scaffold', %w(ProductLines))
-      assert_equal "ProductLines", g.controller_name
-      assert_equal "ProductLines", g.controller_class_name
-      assert_equal "ProductLine", g.controller_singular_name
-      assert_equal "product_lines", g.controller_plural_name
-      assert_equal "product_lines", g.controller_file_name
-      assert_equal "product_lines", g.controller_table_name
-    end
+  def test_scaffolded_plural_names
+    Rails::Generator::Base.logger.expects(:warning)
+    g = Rails::Generator::Base.instance('scaffold', %w(ProductLines))
+    assert_equal "ProductLines", g.controller_name
+    assert_equal "ProductLines", g.controller_class_name
+    assert_equal "ProductLine", g.controller_singular_name
+    assert_equal "product_lines", g.controller_plural_name
+    assert_equal "product_lines", g.controller_file_name
+    assert_equal "product_lines", g.controller_table_name
   end
 
   def test_scaffold_plural_model_name_without_force_plural_generates_singular_model
@@ -126,6 +126,7 @@ class RailsScaffoldGeneratorTest < GeneratorTestCase
     assert_generated_unit_test_for :product
     assert_generated_fixtures_for :products
     assert_generated_helper_for :products
+    assert_generated_helper_test_for :products
     assert_generated_stylesheet :scaffold
     assert_generated_views_for :products, "index.html.erb","new.html.erb","edit.html.erb","show.html.erb"
     assert_skipped_migration :create_products
@@ -140,10 +141,10 @@ class RailsScaffoldGeneratorTest < GeneratorTestCase
     assert_generated_unit_test_for :products
     assert_generated_fixtures_for :products
     assert_generated_helper_for :products
+    assert_generated_helper_test_for :products
     assert_generated_stylesheet :scaffold
     assert_generated_views_for :products, "index.html.erb","new.html.erb","edit.html.erb","show.html.erb"
     assert_skipped_migration :create_products
     assert_added_route_for :products
   end
-
 end
