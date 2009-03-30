@@ -20,8 +20,20 @@ module Mime
   #   end
   class Type
     @@html_types = Set.new [:html, :all]
+    cattr_reader :html_types
+
+    # These are the content types which browsers can generate without using ajax, flash, etc
+    # i.e. following a link, getting an image or posting a form.  CSRF protection
+    # only needs to protect against these types.
+    @@browser_generated_types = Set.new [:html, :url_encoded_form, :multipart_form, :text]
+    cattr_reader :browser_generated_types
+
+
     @@unverifiable_types = Set.new [:text, :json, :csv, :xml, :rss, :atom, :yaml]
-    cattr_reader :html_types, :unverifiable_types
+    def self.unverifiable_types
+      ActiveSupport::Deprecation.warn("unverifiable_types is deprecated and has no effect", caller)
+      @@unverifiable_types
+    end
 
     # A simple helper class used in parsing the accept header
     class AcceptItem #:nodoc:
@@ -164,14 +176,26 @@ module Mime
       end
     end
 
+    def =~(mime_type)
+      return false if mime_type.blank?
+      regexp = Regexp.new(Regexp.quote(mime_type.to_s))
+      (@synonyms + [ self ]).any? do |synonym|
+        synonym.to_s =~ regexp
+      end
+    end
+
     # Returns true if Action Pack should check requests using this Mime Type for possible request forgery.  See
-    # ActionController::RequestForgerProtection.
+    # ActionController::RequestForgeryProtection.
     def verify_request?
-      !@@unverifiable_types.include?(to_sym)
+      browser_generated?
     end
 
     def html?
       @@html_types.include?(to_sym) || @string =~ /html/
+    end
+
+    def browser_generated?
+      @@browser_generated_types.include?(to_sym)
     end
 
     private

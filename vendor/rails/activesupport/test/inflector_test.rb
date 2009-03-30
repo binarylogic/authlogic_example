@@ -104,9 +104,21 @@ class InflectorTest < Test::Unit::TestCase
     end
   end
 
+  def test_parameterize_and_normalize
+    StringToParameterizedAndNormalized.each do |some_string, parameterized_string|
+      assert_equal(parameterized_string, ActiveSupport::Inflector.parameterize(some_string))
+    end
+  end
+
   def test_parameterize_with_custom_separator
     StringToParameterized.each do |some_string, parameterized_string|
       assert_equal(parameterized_string.gsub('-', '_'), ActiveSupport::Inflector.parameterize(some_string, '_'))
+    end
+  end
+
+  def test_parameterize_with_multi_character_separator
+    StringToParameterized.each do |some_string, parameterized_string|
+      assert_equal(parameterized_string.gsub('-', '__sep__'), ActiveSupport::Inflector.parameterize(some_string, '__sep__'))
     end
   end
 
@@ -155,13 +167,13 @@ class InflectorTest < Test::Unit::TestCase
     assert_nothing_raised { assert_equal Ace::Base::Case, ActiveSupport::Inflector.constantize("::Ace::Base::Case") }
     assert_nothing_raised { assert_equal InflectorTest, ActiveSupport::Inflector.constantize("InflectorTest") }
     assert_nothing_raised { assert_equal InflectorTest, ActiveSupport::Inflector.constantize("::InflectorTest") }
-    assert_raises(NameError) { ActiveSupport::Inflector.constantize("UnknownClass") }
-    assert_raises(NameError) { ActiveSupport::Inflector.constantize("An invalid string") }
-    assert_raises(NameError) { ActiveSupport::Inflector.constantize("InvalidClass\n") }
+    assert_raise(NameError) { ActiveSupport::Inflector.constantize("UnknownClass") }
+    assert_raise(NameError) { ActiveSupport::Inflector.constantize("An invalid string") }
+    assert_raise(NameError) { ActiveSupport::Inflector.constantize("InvalidClass\n") }
   end
 
   def test_constantize_does_lexical_lookup
-    assert_raises(NameError) { ActiveSupport::Inflector.constantize("Ace::Base::InflectorTest") }
+    assert_raise(NameError) { ActiveSupport::Inflector.constantize("Ace::Base::InflectorTest") }
   end
 
   def test_ordinal

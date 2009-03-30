@@ -21,6 +21,8 @@ class MockLogger
 end
 
 class TestController < ActionController::Base
+  protect_from_forgery
+
   class LabellingFormBuilder < ActionView::Helpers::FormBuilder
   end
 
@@ -34,12 +36,45 @@ class TestController < ActionController::Base
       render :action => 'hello_world'
     end
   end
+  
+  def conditional_hello_with_public_header
+    if stale?(:last_modified => Time.now.utc.beginning_of_day, :etag => [:foo, 123], :public => true)
+      render :action => 'hello_world'
+    end
+  end
+  
+  def conditional_hello_with_public_header_and_expires_at
+    expires_in 1.minute
+    if stale?(:last_modified => Time.now.utc.beginning_of_day, :etag => [:foo, 123], :public => true)
+      render :action => 'hello_world'
+    end
+  end
+  
+  def conditional_hello_with_expires_in
+    expires_in 1.minute
+    render :action => 'hello_world'
+  end
+  
+  def conditional_hello_with_expires_in_with_public
+    expires_in 1.minute, :public => true
+    render :action => 'hello_world'
+  end
+  
+  def conditional_hello_with_expires_in_with_public_with_more_keys
+    expires_in 1.minute, :public => true, 'max-stale' => 5.hours
+    render :action => 'hello_world'
+  end
+  
+  def conditional_hello_with_expires_in_with_public_with_more_keys_old_syntax
+    expires_in 1.minute, :public => true, :private => nil, 'max-stale' => 5.hours
+    render :action => 'hello_world'
+  end
 
   def conditional_hello_with_bangs
     render :action => 'hello_world'
   end
   before_filter :handle_last_modified_and_etags, :only=>:conditional_hello_with_bangs
-  
+
   def handle_last_modified_and_etags
     fresh_when(:last_modified => Time.now.utc.beginning_of_day, :etag => [ :foo, 123 ])
   end
@@ -79,6 +114,10 @@ class TestController < ActionController::Base
     render :action => "hello_world"
   end
 
+  def render_action_hello_world_as_string
+    render "hello_world"
+  end
+
   def render_action_hello_world_with_symbol
     render :action => :hello_world
   end
@@ -102,6 +141,12 @@ class TestController < ActionController::Base
     render :file => path
   end
 
+  def render_file_as_string_with_instance_variables
+    @secret = 'in the sauce'
+    path = File.expand_path(File.join(File.dirname(__FILE__), '../fixtures/test/render_file_with_ivar.erb'))
+    render path
+  end
+
   def render_file_not_using_full_path
     @secret = 'in the sauce'
     render :file => 'test/render_file_with_ivar'
@@ -112,6 +157,11 @@ class TestController < ActionController::Base
     render :file => 'test/dot.directory/render_file_with_ivar'
   end
 
+  def render_file_using_pathname
+    @secret = 'in the sauce'
+    render :file => Pathname.new(File.dirname(__FILE__)).join('..', 'fixtures', 'test', 'dot.directory', 'render_file_with_ivar.erb')
+  end
+
   def render_file_from_template
     @secret = 'in the sauce'
     @path = File.expand_path(File.join(File.dirname(__FILE__), '../fixtures/test/render_file_with_ivar.erb'))
@@ -120,6 +170,11 @@ class TestController < ActionController::Base
   def render_file_with_locals
     path = File.join(File.dirname(__FILE__), '../fixtures/test/render_file_with_locals.erb')
     render :file => path, :locals => {:secret => 'in the sauce'}
+  end
+
+  def render_file_as_string_with_locals
+    path = File.expand_path(File.join(File.dirname(__FILE__), '../fixtures/test/render_file_with_locals.erb'))
+    render path, :locals => {:secret => 'in the sauce'}
   end
 
   def accessing_request_in_template
@@ -154,6 +209,10 @@ class TestController < ActionController::Base
     render :json => {:hello => 'world'}.to_json
   end
 
+  def render_json_with_render_to_string
+    render :json => {:hello => render_to_string(:partial => 'partial')}
+  end
+
   def render_custom_code
     render :text => "hello world", :status => 404
   end
@@ -176,13 +235,18 @@ class TestController < ActionController::Base
     render :text => "appended"
   end
 
-  def render_invalid_args
-    render("test/hello")
+  def render_vanilla_js_hello
+    render :js => "alert('hello')"
   end
 
   def render_xml_hello
     @name = "David"
     render :template => "test/hello"
+  end
+
+  def render_xml_hello_as_string_template
+    @name = "David"
+    render "test/hello"
   end
 
   def render_xml_with_custom_content_type
@@ -199,6 +263,10 @@ class TestController < ActionController::Base
 
   def greeting
     # let's just rely on the template
+  end
+
+  def blank_response
+    render :text => ' '
   end
 
   def layout_test
@@ -238,6 +306,22 @@ class TestController < ActionController::Base
            :locals => { :local_name => name }
   end
 
+  def render_implicit_html_template
+  end
+
+  def render_explicit_html_template
+  end
+
+  def render_implicit_html_template_from_xhr_request
+  end
+
+  def render_implicit_js_template_without_layout
+  end
+
+  def render_html_explicit_template_and_layout
+    render :template => 'test/render_implicit_html_template_from_xhr_request', :layout => 'layouts/default_html'
+  end
+
   def formatted_html_erb
   end
 
@@ -262,6 +346,14 @@ class TestController < ActionController::Base
 
   def layout_test_with_different_layout
     render :action => "hello_world", :layout => "standard"
+  end
+
+  def layout_test_with_different_layout_and_string_action
+    render "hello_world", :layout => "standard"
+  end
+
+  def layout_test_with_different_layout_and_symbol_action
+    render :hello_world, :layout => "standard"
   end
 
   def rendering_without_layout
@@ -305,6 +397,10 @@ class TestController < ActionController::Base
     render :template => "test/hello_world"
   end
 
+  def render_with_explicit_string_template
+    render "test/hello_world"
+  end
+
   def render_with_explicit_template_with_locals
     render :template => "test/render_file_with_locals", :locals => { :secret => 'area51' }
   end
@@ -327,6 +423,11 @@ class TestController < ActionController::Base
   def render_to_string_and_render
     @stuff = render_to_string :text => "here is some cached stuff"
     render :text => "Hi web users! #{@stuff}"
+  end
+
+  def render_to_string_with_inline_and_render
+    render_to_string :inline => "<%= 'dlrow olleh'.reverse %>"
+    render :template => "test/hello_world"
   end
 
   def rendering_with_conflicting_local_vars
@@ -586,6 +687,14 @@ class TestController < ActionController::Base
     render :partial => "hash_object", :object => {:first_name => "Sam"}
   end
 
+  def partial_with_nested_object
+    render :partial => "quiz/questions/question", :object => Quiz::Question.new("first")
+  end
+
+  def partial_with_nested_object_shorthand
+    render Quiz::Question.new("first")
+  end
+
   def partial_hash_collection
     render :partial => "hash_object", :collection => [ {:first_name => "Pratik"}, {:first_name => "Amy"} ]
   end
@@ -622,23 +731,26 @@ class TestController < ActionController::Base
              "accessing_params_in_template",
              "accessing_params_in_template_with_layout",
              "render_with_explicit_template",
+             "render_with_explicit_string_template",
              "render_js_with_explicit_template",
              "render_js_with_explicit_action_template",
              "delete_with_js", "update_page", "update_page_with_instance_variables"
 
           "layouts/standard"
+        when "render_implicit_js_template_without_layout"
+          "layouts/default_html"
         when "action_talk_to_layout", "layout_overriding_layout"
           "layouts/talk_from_action"
+        when "render_implicit_html_template_from_xhr_request"
+          (request.xhr? ? 'layouts/xhr' : 'layouts/standard')
       end
     end
 end
 
-class RenderTest < Test::Unit::TestCase
-  def setup
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-    @controller = TestController.new
+class RenderTest < ActionController::TestCase
+  tests TestController
 
+  def setup
     # enable a logger so that (e.g.) the benchmarking stuff runs, so we can get
     # a more accurate simulation of what happens in "real life".
     @controller.logger = Logger.new(nil)
@@ -703,6 +815,12 @@ class RenderTest < Test::Unit::TestCase
     assert_template "test/hello_world"
   end
 
+  def test_render_action_hello_world_as_string
+    get :render_action_hello_world_as_string
+    assert_equal "Hello world!", @response.body
+    assert_template "test/hello_world"
+  end
+
   def test_render_action_with_symbol
     get :render_action_hello_world_with_symbol
     assert_template "test/hello_world"
@@ -718,6 +836,11 @@ class RenderTest < Test::Unit::TestCase
     assert_equal "<html>hello world, I'm here!</html>", @response.body
   end
 
+  def test_xhr_with_render_text_and_layout
+    xhr :get, :render_text_hello_world_with_layout
+    assert_equal "<html>hello world, I'm here!</html>", @response.body
+  end
+
   def test_do_with_render_action_and_layout_false
     get :hello_world_with_layout_false
     assert_equal 'Hello world!', @response.body
@@ -725,6 +848,11 @@ class RenderTest < Test::Unit::TestCase
 
   def test_render_file_with_instance_variables
     get :render_file_with_instance_variables
+    assert_equal "The secret is in the sauce\n", @response.body
+  end
+
+  def test_render_file_as_string_with_instance_variables
+    get :render_file_as_string_with_instance_variables
     assert_equal "The secret is in the sauce\n", @response.body
   end
 
@@ -738,8 +866,18 @@ class RenderTest < Test::Unit::TestCase
     assert_equal "The secret is in the sauce\n", @response.body
   end
 
+  def test_render_file_using_pathname
+    get :render_file_using_pathname
+    assert_equal "The secret is in the sauce\n", @response.body
+  end
+
   def test_render_file_with_locals
     get :render_file_with_locals
+    assert_equal "The secret is in the sauce\n", @response.body
+  end
+
+  def test_render_file_as_string_with_locals
+    get :render_file_as_string_with_locals
     assert_equal "The secret is in the sauce\n", @response.body
   end
 
@@ -769,6 +907,12 @@ class RenderTest < Test::Unit::TestCase
   def test_render_symbol_json
     get :render_symbol_json
     assert_equal '{"hello": "world"}', @response.body
+    assert_equal 'application/json', @response.content_type
+  end
+
+  def test_render_json_with_render_to_string
+    get :render_json_with_render_to_string
+    assert_equal '{"hello": "partial html"}', @response.body
     assert_equal 'application/json', @response.content_type
   end
 
@@ -802,16 +946,12 @@ class RenderTest < Test::Unit::TestCase
     assert_equal 'appended', @response.body
   end
 
-  def test_attempt_to_render_with_invalid_arguments
-    assert_raises(ActionController::RenderError) { get :render_invalid_args }
-  end
-
   def test_attempt_to_access_object_method
-    assert_raises(ActionController::UnknownAction, "No action responded to [clone]") { get :clone }
+    assert_raise(ActionController::UnknownAction, "No action responded to [clone]") { get :clone }
   end
 
   def test_private_methods
-    assert_raises(ActionController::UnknownAction, "No action responded to [determine_layout]") { get :determine_layout }
+    assert_raise(ActionController::UnknownAction, "No action responded to [determine_layout]") { get :determine_layout }
   end
 
   def test_access_to_request_in_view
@@ -834,8 +974,20 @@ class RenderTest < Test::Unit::TestCase
     assert_equal "test", @response.body # name is explicitly set to 'test' inside the controller.
   end
 
+  def test_render_vanilla_js
+    get :render_vanilla_js_hello
+    assert_equal "alert('hello')", @response.body
+    assert_equal "text/javascript", @response.content_type
+  end
+
   def test_render_xml
     get :render_xml_hello
+    assert_equal "<html>\n  <p>Hello David</p>\n<p>This is grand!</p>\n</html>\n", @response.body
+    assert_equal "application/xml", @response.content_type
+  end
+
+  def test_render_xml_as_string_template
+    get :render_xml_hello_as_string_template
     assert_equal "<html>\n  <p>Hello David</p>\n<p>This is grand!</p>\n</html>\n", @response.body
     assert_equal "application/xml", @response.content_type
   end
@@ -851,12 +1003,13 @@ class RenderTest < Test::Unit::TestCase
   end
 
   def test_enum_rjs_test
+    ActiveSupport::SecureRandom.stubs(:base64).returns("asdf")
     get :enum_rjs_test
     body = %{
       $$(".product").each(function(value, index) {
       new Effect.Highlight(element,{});
       new Effect.Highlight(value,{});
-      Sortable.create(value, {onUpdate:function(){new Ajax.Request('/test/order', {asynchronous:true, evalScripts:true, parameters:Sortable.serialize(value)})}});
+      Sortable.create(value, {onUpdate:function(){new Ajax.Request('/test/order', {asynchronous:true, evalScripts:true, parameters:Sortable.serialize(value) + '&authenticity_token=' + encodeURIComponent('asdf')})}});
       new Draggable(value, {});
       });
     }.gsub(/^      /, '').strip
@@ -888,6 +1041,11 @@ class RenderTest < Test::Unit::TestCase
     assert_equal "The value of foo is: ::this is a test::\n", @response.body
   end
 
+  def test_render_to_string_inline
+    get :render_to_string_with_inline_and_render
+    assert_template "test/hello_world"
+  end
+
   def test_nested_rendering
     @controller = Fun::GamesController.new
     get :hello_world
@@ -902,6 +1060,39 @@ class RenderTest < Test::Unit::TestCase
   def test_accessing_local_assigns_in_inline_template
     get :accessing_local_assigns_in_inline_template, :local_name => "Local David"
     assert_equal "Goodbye, Local David", @response.body
+  end
+
+  def test_render_in_an_rjs_template_should_pick_html_templates_when_available
+    [:js, "js"].each do |format|
+      assert_nothing_raised do
+        get :render_implicit_html_template, :format => format
+        assert_equal %(document.write("Hello world\\n");), @response.body
+      end
+    end
+  end
+
+  def test_explicitly_rendering_an_html_template_with_implicit_html_template_renders_should_be_possible_from_an_rjs_template
+    [:js, "js"].each do |format|
+      assert_nothing_raised do
+        get :render_explicit_html_template, :format => format
+        assert_equal %(document.write("Hello world\\n");), @response.body
+      end
+    end
+  end
+
+  def test_should_implicitly_render_html_template_from_xhr_request
+    xhr :get, :render_implicit_html_template_from_xhr_request
+    assert_equal "XHR!\nHello HTML!", @response.body
+  end
+
+  def test_should_render_explicit_html_template_with_html_layout
+    xhr :get, :render_html_explicit_template_and_layout
+    assert_equal "<html>Hello HTML!</html>\n", @response.body
+  end
+
+  def test_should_implicitly_render_js_template_without_layout
+    get :render_implicit_js_template_without_layout, :format => :js
+    assert_no_match /<html>/, @response.body
   end
 
   def test_should_render_formatted_template
@@ -955,6 +1146,16 @@ class RenderTest < Test::Unit::TestCase
     assert_equal "<html>Hello world!</html>", @response.body
   end
 
+  def test_layout_test_with_different_layout_and_string_action
+    get :layout_test_with_different_layout_and_string_action
+    assert_equal "<html>Hello world!</html>", @response.body
+  end
+
+  def test_layout_test_with_different_layout_and_symbol_action
+    get :layout_test_with_different_layout_and_symbol_action
+    assert_equal "<html>Hello world!</html>", @response.body
+  end
+
   def test_rendering_without_layout
     get :rendering_without_layout
     assert_equal "Hello world!", @response.body
@@ -982,7 +1183,7 @@ class RenderTest < Test::Unit::TestCase
   end
 
   def test_bad_render_to_string_still_throws_exception
-    assert_raises(ActionView::MissingTemplate) { get :render_to_string_with_exception }
+    assert_raise(ActionView::MissingTemplate) { get :render_to_string_with_exception }
   end
 
   def test_render_to_string_that_throws_caught_exception_doesnt_break_assigns
@@ -1001,16 +1202,21 @@ class RenderTest < Test::Unit::TestCase
     assert_response :success
   end
 
+  def test_render_with_explicit_string_template
+    get :render_with_explicit_string_template
+    assert_equal "<html>Hello world!</html>", @response.body
+  end
+
   def test_double_render
-    assert_raises(ActionController::DoubleRenderError) { get :double_render }
+    assert_raise(ActionController::DoubleRenderError) { get :double_render }
   end
 
   def test_double_redirect
-    assert_raises(ActionController::DoubleRenderError) { get :double_redirect }
+    assert_raise(ActionController::DoubleRenderError) { get :double_redirect }
   end
 
   def test_render_and_redirect
-    assert_raises(ActionController::DoubleRenderError) { get :render_and_redirect }
+    assert_raise(ActionController::DoubleRenderError) { get :render_and_redirect }
   end
 
   # specify the one exception to double render rule - render_to_string followed by render
@@ -1042,14 +1248,14 @@ class RenderTest < Test::Unit::TestCase
   def test_update_page
     get :update_page
     assert_template nil
-    assert_equal 'text/javascript; charset=utf-8', @response.headers['type']
+    assert_equal 'text/javascript; charset=utf-8', @response.headers['Content-Type']
     assert_equal 2, @response.body.split($/).length
   end
 
   def test_update_page_with_instance_variables
     get :update_page_with_instance_variables
     assert_template nil
-    assert_equal 'text/javascript; charset=utf-8', @response.headers['type']
+    assert_equal 'text/javascript; charset=utf-8', @response.headers["Content-Type"]
     assert_match /balance/, @response.body
     assert_match /\$37/, @response.body
   end
@@ -1057,7 +1263,7 @@ class RenderTest < Test::Unit::TestCase
   def test_update_page_with_view_method
     get :update_page_with_view_method
     assert_template nil
-    assert_equal 'text/javascript; charset=utf-8', @response.headers['type']
+    assert_equal 'text/javascript; charset=utf-8', @response.headers["Content-Type"]
     assert_match /2 people/, @response.body
   end
 
@@ -1090,12 +1296,17 @@ class RenderTest < Test::Unit::TestCase
 
   def test_head_with_symbolic_status
     get :head_with_symbolic_status, :status => "ok"
-    assert_equal "200 OK", @response.headers["Status"]
+    assert_equal "200 OK", @response.status
     assert_response :ok
 
     get :head_with_symbolic_status, :status => "not_found"
-    assert_equal "404 Not Found", @response.headers["Status"]
+    assert_equal "404 Not Found", @response.status
     assert_response :not_found
+
+    get :head_with_symbolic_status, :status => "no_content"
+    assert_equal "204 No Content", @response.status
+    assert !@response.headers.include?('Content-Length')
+    assert_response :no_content
 
     ActionController::StatusCodes::SYMBOL_TO_STATUS_CODE.each do |status, code|
       get :head_with_symbolic_status, :status => status.to_s
@@ -1257,26 +1468,43 @@ class RenderTest < Test::Unit::TestCase
   def test_partial_collection_with_spacer
     get :partial_collection_with_spacer
     assert_equal "Hello: davidonly partialHello: mary", @response.body
+    assert_template :partial => 'test/_partial_only'
+    assert_template :partial => '_customer'
   end
 
   def test_partial_collection_shorthand_with_locals
     get :partial_collection_shorthand_with_locals
     assert_equal "Bonjour: davidBonjour: mary", @response.body
+    assert_template :partial => 'customers/_customer', :count => 2
+    assert_template :partial => '_completely_fake_and_made_up_template_that_cannot_possibly_be_rendered', :count => 0
   end
 
   def test_partial_collection_shorthand_with_different_types_of_records
     get :partial_collection_shorthand_with_different_types_of_records
     assert_equal "Bonjour bad customer: mark0Bonjour good customer: craig1Bonjour bad customer: john2Bonjour good customer: zach3Bonjour good customer: brandon4Bonjour bad customer: dan5", @response.body
+    assert_template :partial => 'good_customers/_good_customer', :count => 3
+    assert_template :partial => 'bad_customers/_bad_customer', :count => 3
   end
 
   def test_empty_partial_collection
     get :empty_partial_collection
     assert_equal " ", @response.body
+    assert_template :partial => false
   end
 
   def test_partial_with_hash_object
     get :partial_with_hash_object
     assert_equal "Sam\nmaS\n", @response.body
+  end
+
+  def test_partial_with_nested_object
+    get :partial_with_nested_object
+    assert_equal "first", @response.body
+  end
+
+  def test_partial_with_nested_object_shorthand
+    get :partial_with_nested_object_shorthand
+    assert_equal "first", @response.body
   end
 
   def test_hash_partial_collection
@@ -1297,7 +1525,7 @@ class RenderTest < Test::Unit::TestCase
   end
 
   def test_render_missing_partial_template
-    assert_raises(ActionView::MissingTemplate) do
+    assert_raise(ActionView::MissingTemplate) do
       get :missing_partial
     end
   end
@@ -1313,14 +1541,46 @@ class RenderTest < Test::Unit::TestCase
   end
 end
 
-class EtagRenderTest < Test::Unit::TestCase
-  def setup
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-    @controller = TestController.new
+class ExpiresInRenderTest < ActionController::TestCase
+  tests TestController
 
+  def setup
+    @request.host = "www.nextangle.com"
+  end
+  
+  def test_expires_in_header
+    get :conditional_hello_with_expires_in
+    assert_equal "max-age=60, private", @response.headers["Cache-Control"]
+  end
+  
+  def test_expires_in_header_with_public
+    get :conditional_hello_with_expires_in_with_public
+    assert_equal "max-age=60, public", @response.headers["Cache-Control"]
+  end
+  
+  def test_expires_in_header_with_additional_headers
+    get :conditional_hello_with_expires_in_with_public_with_more_keys
+    assert_equal "max-age=60, public, max-stale=18000", @response.headers["Cache-Control"]
+  end
+  
+  def test_expires_in_old_syntax
+    get :conditional_hello_with_expires_in_with_public_with_more_keys_old_syntax
+    assert_equal "max-age=60, public, max-stale=18000", @response.headers["Cache-Control"]
+  end
+end
+
+
+class EtagRenderTest < ActionController::TestCase
+  tests TestController
+
+  def setup
     @request.host = "www.nextangle.com"
     @expected_bang_etag = etag_for(expand_key([:foo, 123]))
+  end
+
+  def test_render_blank_body_shouldnt_set_etag
+    get :blank_response
+    assert !@response.etag?
   end
 
   def test_render_200_should_set_etag
@@ -1339,7 +1599,7 @@ class EtagRenderTest < Test::Unit::TestCase
   def test_render_against_etag_request_should_have_no_content_length_when_match
     @request.if_none_match = etag_for("hello david")
     get :render_hello_world_from_variable
-    assert !@response.headers.has_key?("Content-Length")
+    assert !@response.headers.has_key?("Content-Length"), @response.headers['Content-Length']
   end
 
   def test_render_against_etag_request_should_200_when_no_match
@@ -1348,7 +1608,7 @@ class EtagRenderTest < Test::Unit::TestCase
     assert_equal "200 OK", @response.status
     assert !@response.body.empty?
   end
-  
+
   def test_render_should_not_set_etag_when_last_modified_has_been_specified
     get :render_hello_world_with_last_modified_set
     assert_equal "200 OK", @response.status
@@ -1362,7 +1622,7 @@ class EtagRenderTest < Test::Unit::TestCase
     expected_etag = etag_for('hello david')
     assert_equal expected_etag, @response.headers['ETag']
     @response = ActionController::TestResponse.new
-    
+
     @request.if_none_match = expected_etag
     get :render_hello_world_from_variable
     assert_equal "304 Not Modified", @response.status
@@ -1387,35 +1647,43 @@ class EtagRenderTest < Test::Unit::TestCase
     assert_equal "<wrapper>\n<html>\n  <p>Hello </p>\n<p>This is grand!</p>\n</html>\n</wrapper>\n", @response.body
     assert_equal etag_for("<wrapper>\n<html>\n  <p>Hello </p>\n<p>This is grand!</p>\n</html>\n</wrapper>\n"), @response.headers['ETag']
   end
-  
+
   def test_etag_with_bang_should_set_etag
     get :conditional_hello_with_bangs
     assert_equal @expected_bang_etag, @response.headers["ETag"]
     assert_response :success
   end
-  
+
   def test_etag_with_bang_should_obey_if_none_match
     @request.if_none_match = @expected_bang_etag
     get :conditional_hello_with_bangs
     assert_response :not_modified
   end
   
+  def test_etag_with_public_true_should_set_header
+    get :conditional_hello_with_public_header
+    assert_equal "public", @response.headers['Cache-Control']
+  end
+  
+  def test_etag_with_public_true_should_set_header_and_retain_other_headers
+    get :conditional_hello_with_public_header_and_expires_at
+    assert_equal "max-age=60, public", @response.headers['Cache-Control']
+  end
+
   protected
     def etag_for(text)
       %("#{Digest::MD5.hexdigest(text)}")
     end
-    
+
     def expand_key(args)
       ActiveSupport::Cache.expand_cache_key(args)
     end
 end
 
-class LastModifiedRenderTest < Test::Unit::TestCase
-  def setup
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-    @controller = TestController.new
+class LastModifiedRenderTest < ActionController::TestCase
+  tests TestController
 
+  def setup
     @request.host = "www.nextangle.com"
     @last_modified = Time.now.utc.beginning_of_day.httpdate
   end
@@ -1447,13 +1715,13 @@ class LastModifiedRenderTest < Test::Unit::TestCase
     assert !@response.body.blank?
     assert_equal @last_modified, @response.headers['Last-Modified']
   end
-  
+
   def test_request_with_bang_gets_last_modified
     get :conditional_hello_with_bangs
     assert_equal @last_modified, @response.headers['Last-Modified']
     assert_response :success
   end
-  
+
   def test_request_with_bang_obeys_last_modified
     @request.if_modified_since = @last_modified
     get :conditional_hello_with_bangs
@@ -1467,12 +1735,10 @@ class LastModifiedRenderTest < Test::Unit::TestCase
   end
 end
 
-class RenderingLoggingTest < Test::Unit::TestCase
-  def setup
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-    @controller = TestController.new
+class RenderingLoggingTest < ActionController::TestCase
+  tests TestController
 
+  def setup
     @request.host = "www.nextangle.com"
   end
 

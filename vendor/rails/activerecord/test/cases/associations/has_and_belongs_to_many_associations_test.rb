@@ -68,6 +68,16 @@ class DeveloperWithSymbolsForKeys < ActiveRecord::Base
     :foreign_key => "developer_id"
 end
 
+class DeveloperWithCounterSQL < ActiveRecord::Base
+  set_table_name 'developers'
+  has_and_belongs_to_many :projects,
+    :class_name => "DeveloperWithCounterSQL",
+    :join_table => "developers_projects",
+    :association_foreign_key => "project_id",
+    :foreign_key => "developer_id",
+    :counter_sql => 'SELECT COUNT(*) AS count_all FROM projects INNER JOIN developers_projects ON projects.id = developers_projects.project_id WHERE developers_projects.developer_id =#{id}'
+end
+
 class HasAndBelongsToManyAssociationsTest < ActiveRecord::TestCase
   fixtures :accounts, :companies, :categories, :posts, :categories_posts, :developers, :projects, :developers_projects,
            :parrots, :pirates, :treasures, :price_estimates, :tags, :taggings
@@ -371,6 +381,33 @@ class HasAndBelongsToManyAssociationsTest < ActiveRecord::TestCase
     assert_date_from_db Date.new(2004, 10, 10), Developer.find(1).projects.first.joined_on.to_date
   end
 
+  def test_destroying
+    david = Developer.find(1)
+    active_record = Project.find(1)
+    david.projects.reload
+    assert_equal 2, david.projects.size
+    assert_equal 3, active_record.developers.size
+
+    assert_difference "Project.count", -1 do
+      david.projects.destroy(active_record)
+    end
+
+    assert_equal 1, david.reload.projects.size
+    assert_equal 1, david.projects(true).size
+  end
+
+  def test_destroying_array
+    david = Developer.find(1)
+    david.projects.reload
+
+    assert_difference "Project.count", -Project.count do
+      david.projects.destroy(Project.find(:all))
+    end
+
+    assert_equal 0, david.reload.projects.size
+    assert_equal 0, david.projects(true).size
+  end
+
   def test_destroy_all
     david = Developer.find(1)
     david.projects.reload
@@ -606,7 +643,7 @@ class HasAndBelongsToManyAssociationsTest < ActiveRecord::TestCase
   def test_updating_attributes_on_rich_associations
     david = projects(:action_controller).developers.first
     david.name = "DHH"
-    assert_raises(ActiveRecord::ReadOnlyRecord) { david.save! }
+    assert_raise(ActiveRecord::ReadOnlyRecord) { david.save! }
   end
 
   def test_updating_attributes_on_rich_associations_with_limited_find_from_reflection
@@ -646,6 +683,11 @@ class HasAndBelongsToManyAssociationsTest < ActiveRecord::TestCase
   def test_find_scoped_grouped
     assert_equal 4, categories(:general).posts_gruoped_by_title.size
     assert_equal 1, categories(:technology).posts_gruoped_by_title.size
+  end
+
+  def test_find_scoped_grouped_having
+    assert_equal 2, projects(:active_record).well_payed_salary_groups.size
+    assert projects(:active_record).well_payed_salary_groups.all? { |g| g.salary > 10000 }
   end
 
   def test_get_ids
@@ -725,6 +767,14 @@ class HasAndBelongsToManyAssociationsTest < ActiveRecord::TestCase
     assert_equal developer, project.developers.find(:first)
     assert_equal project, developer.projects.find(:first)
   end
+  
+  def test_self_referential_habtm_without_foreign_key_set_should_raise_exception
+    assert_raise(ActiveRecord::HasAndBelongsToManyAssociationForeignKeyNeeded) {
+      Member.class_eval do
+        has_and_belongs_to_many :friends, :class_name => "Member", :join_table => "member_friends"
+      end
+    }
+  end
 
   def test_dynamic_find_should_respect_association_include
     # SQL error in sort clause if :include is not included
@@ -739,12 +789,34 @@ class HasAndBelongsToManyAssociationsTest < ActiveRecord::TestCase
     assert_nothing_raised { david.projects.count(:all, :conditions => '1=1') }
   end
 
-  uses_mocha 'mocking Post.transaction' do
-    def test_association_proxy_transaction_method_starts_transaction_in_association_class
-      Post.expects(:transaction)
-      Category.find(:first).posts.transaction do
-        # nothing
-      end
+  def test_count
+    david = Developer.find(1)
+    assert_equal 2, david.projects.count
+  end
+
+  def test_count_with_counter_sql
+    developer  = DeveloperWithCounterSQL.create(:name => 'tekin')
+    developer.project_ids = [projects(:active_record).id]
+    developer.save
+    developer.reload
+    assert_equal 1, developer.projects.count
+  end
+
+  def test_association_proxy_transaction_method_starts_transaction_in_association_class
+    Post.expects(:transaction)
+    Category.find(:first).posts.transaction do
+      # nothing
     end
   end
+
+  def test_caching_of_columns
+    david = Developer.find(1)
+    # clear cache possibly created by other tests
+    david.projects.reset_column_information
+    assert_queries(0) { david.projects.columns; david.projects.columns }
+    # and again to verify that reset_column_information clears the cache correctly
+    david.projects.reset_column_information
+    assert_queries(0) { david.projects.columns; david.projects.columns }
+  end
+
 end

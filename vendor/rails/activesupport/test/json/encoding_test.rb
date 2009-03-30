@@ -59,7 +59,7 @@ class TestJSONEncoding < Test::Unit::TestCase
     assert_equal %({\"a\": \"b\"}), { :a => :b }.to_json
     assert_equal %({\"a\": 1}), { 'a' => 1  }.to_json
     assert_equal %({\"a\": [1, 2]}), { 'a' => [1,2] }.to_json
-    assert_equal %({1: 2}), { 1 => 2 }.to_json
+    assert_equal %({"1": 2}), { 1 => 2 }.to_json
 
     sorted_json = '{' + {:a => :b, :c => :d}.to_json[1..-2].split(', ').sort.join(', ') + '}'
     assert_equal %({\"a\": \"b\", \"c\": \"d\"}), sorted_json
@@ -75,12 +75,12 @@ class TestJSONEncoding < Test::Unit::TestCase
   def test_exception_raised_when_encoding_circular_reference
     a = [1]
     a << a
-    assert_raises(ActiveSupport::JSON::CircularReferenceError) { a.to_json }
+    assert_raise(ActiveSupport::JSON::CircularReferenceError) { a.to_json }
   end
 
   def test_hash_key_identifiers_are_always_quoted
     values = {0 => 0, 1 => 1, :_ => :_, "$" => "$", "a" => "a", :A => :A, :A0 => :A0, "A0B" => "A0B"}
-    assert_equal %w( "$" "A" "A0" "A0B" "_" "a" 0 1 ), object_keys(values.to_json)
+    assert_equal %w( "$" "A" "A0" "A0B" "_" "a" "0" "1" ).sort, object_keys(values.to_json)
   end
 
   def test_hash_should_allow_key_filtering_with_only
@@ -126,15 +126,13 @@ class TestJSONEncoding < Test::Unit::TestCase
     end
 end
 
-uses_mocha 'JsonOptionsTests' do
-  class JsonOptionsTests < Test::Unit::TestCase
-    def test_enumerable_should_passthrough_options_to_elements
-      json_options = { :include => :posts }
-      ActiveSupport::JSON.expects(:encode).with(1, json_options)
-      ActiveSupport::JSON.expects(:encode).with(2, json_options)
-      ActiveSupport::JSON.expects(:encode).with('foo', json_options)
+class JsonOptionsTests < Test::Unit::TestCase
+  def test_enumerable_should_passthrough_options_to_elements
+    json_options = { :include => :posts }
+    ActiveSupport::JSON.expects(:encode).with(1, json_options)
+    ActiveSupport::JSON.expects(:encode).with(2, json_options)
+    ActiveSupport::JSON.expects(:encode).with('foo', json_options)
 
-      [1, 2, 'foo'].to_json(json_options)
-    end
+    [1, 2, 'foo'].to_json(json_options)
   end
 end

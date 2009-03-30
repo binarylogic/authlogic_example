@@ -123,7 +123,7 @@ class TimeExtCalculationsTest < Test::Unit::TestCase
   def test_end_of_year
     assert_equal Time.local(2007,12,31,23,59,59), Time.local(2007,2,22,10,10,10).end_of_year
     assert_equal Time.local(2007,12,31,23,59,59), Time.local(2007,12,31,10,10,10).end_of_year
-   end
+  end
 
   def test_beginning_of_year
     assert_equal Time.local(2005,1,1,0,0,0), Time.local(2005,2,22,10,10,10).beginning_of_year
@@ -183,26 +183,46 @@ class TimeExtCalculationsTest < Test::Unit::TestCase
   def test_daylight_savings_time_crossings_backward_start
     with_env_tz 'US/Eastern' do
       # dt: US: 2005 April 3rd 4:18am
-      assert_equal Time.local(2005,4,2,4,18,0), Time.local(2005,4,3,4,18,0).ago(86400), 'dt-1.day=>st'
-      assert_equal Time.local(2005,4,1,4,18,0), Time.local(2005,4,2,4,18,0).ago(86400), 'st-1.day=>st'
+      assert_equal Time.local(2005,4,2,3,18,0), Time.local(2005,4,3,4,18,0).ago(24.hours), 'dt-24.hours=>st'
+      assert_equal Time.local(2005,4,2,3,18,0), Time.local(2005,4,3,4,18,0).ago(86400), 'dt-86400=>st'
+      assert_equal Time.local(2005,4,2,3,18,0), Time.local(2005,4,3,4,18,0).ago(86400.seconds), 'dt-86400.seconds=>st'
+      
+      assert_equal Time.local(2005,4,1,4,18,0), Time.local(2005,4,2,4,18,0).ago(24.hours), 'st-24.hours=>st'
+      assert_equal Time.local(2005,4,1,4,18,0), Time.local(2005,4,2,4,18,0).ago(86400), 'st-86400=>st'
+      assert_equal Time.local(2005,4,1,4,18,0), Time.local(2005,4,2,4,18,0).ago(86400.seconds), 'st-86400.seconds=>st'
     end
     with_env_tz 'NZ' do
       # dt: New Zealand: 2006 October 1st 4:18am
-      assert_equal Time.local(2006,9,30,4,18,0), Time.local(2006,10,1,4,18,0).ago(86400), 'dt-1.day=>st'
-      assert_equal Time.local(2006,9,29,4,18,0), Time.local(2006,9,30,4,18,0).ago(86400), 'st-1.day=>st'
+      assert_equal Time.local(2006,9,30,3,18,0), Time.local(2006,10,1,4,18,0).ago(24.hours), 'dt-24.hours=>st'
+      assert_equal Time.local(2006,9,30,3,18,0), Time.local(2006,10,1,4,18,0).ago(86400.seconds), 'dt-86400.seconds=>st'
+      assert_equal Time.local(2006,9,30,3,18,0), Time.local(2006,10,1,4,18,0).ago(86400), 'dt-86400=>st'
+      
+      assert_equal Time.local(2006,9,29,4,18,0), Time.local(2006,9,30,4,18,0).ago(86400), 'st-86400=>st'
+      assert_equal Time.local(2006,9,29,4,18,0), Time.local(2006,9,30,4,18,0).ago(24.hours), 'st-24.hours=>st'
+      assert_equal Time.local(2006,9,29,4,18,0), Time.local(2006,9,30,4,18,0).ago(86400.seconds), 'st-86400.seconds=>st'
     end
   end
 
   def test_daylight_savings_time_crossings_backward_end
     with_env_tz 'US/Eastern' do
       # st: US: 2005 October 30th 4:03am
-      assert_equal Time.local(2005,10,29,4,3), Time.local(2005,10,30,4,3,0).ago(86400), 'st-1.day=>dt'
-      assert_equal Time.local(2005,10,28,4,3), Time.local(2005,10,29,4,3,0).ago(86400), 'dt-1.day=>dt'
+      assert_equal Time.local(2005,10,29,5,3), Time.local(2005,10,30,4,3,0).ago(24.hours), 'st-24.hours=>dt'
+      assert_equal Time.local(2005,10,29,5,3), Time.local(2005,10,30,4,3,0).ago(86400), 'st-86400=>dt'
+      assert_equal Time.local(2005,10,29,5,3), Time.local(2005,10,30,4,3,0).ago(86400.seconds), 'st-86400.seconds=>dt'
+      
+      assert_equal Time.local(2005,10,28,4,3), Time.local(2005,10,29,4,3,0).ago(24.hours), 'dt-24.hours=>dt'
+      assert_equal Time.local(2005,10,28,4,3), Time.local(2005,10,29,4,3,0).ago(86400), 'dt-86400=>dt'
+      assert_equal Time.local(2005,10,28,4,3), Time.local(2005,10,29,4,3,0).ago(86400.seconds), 'dt-86400.seconds=>dt'
     end
     with_env_tz 'NZ' do
       # st: New Zealand: 2006 March 19th 4:03am
-      assert_equal Time.local(2006,3,18,4,3), Time.local(2006,3,19,4,3,0).ago(86400), 'st-1.day=>dt'
-      assert_equal Time.local(2006,3,17,4,3), Time.local(2006,3,18,4,3,0).ago(86400), 'dt-1.day=>dt'
+      assert_equal Time.local(2006,3,18,5,3), Time.local(2006,3,19,4,3,0).ago(24.hours), 'st-24.hours=>dt'
+      assert_equal Time.local(2006,3,18,5,3), Time.local(2006,3,19,4,3,0).ago(86400), 'st-86400=>dt'
+      assert_equal Time.local(2006,3,18,5,3), Time.local(2006,3,19,4,3,0).ago(86400.seconds), 'st-86400.seconds=>dt'
+      
+      assert_equal Time.local(2006,3,17,4,3), Time.local(2006,3,18,4,3,0).ago(24.hours), 'dt-24.hours=>dt'
+      assert_equal Time.local(2006,3,17,4,3), Time.local(2006,3,18,4,3,0).ago(86400), 'dt-86400=>dt'
+      assert_equal Time.local(2006,3,17,4,3), Time.local(2006,3,18,4,3,0).ago(86400.seconds), 'dt-86400.seconds=>dt'
     end
   end
 
@@ -231,6 +251,7 @@ class TimeExtCalculationsTest < Test::Unit::TestCase
       assert_equal Time.local(2006,3,17,4,3), Time.local(2006,3,18,4,3,0).ago(1.day), 'dt-1.day=>dt'
     end
   end
+  
   def test_since
     assert_equal Time.local(2005,2,22,10,10,11), Time.local(2005,2,22,10,10,10).since(1)
     assert_equal Time.local(2005,2,22,11,10,10), Time.local(2005,2,22,10,10,10).since(3600)
@@ -243,13 +264,23 @@ class TimeExtCalculationsTest < Test::Unit::TestCase
   def test_daylight_savings_time_crossings_forward_start
     with_env_tz 'US/Eastern' do
       # st: US: 2005 April 2nd 7:27pm
-      assert_equal Time.local(2005,4,3,19,27,0), Time.local(2005,4,2,19,27,0).since(86400), 'st+1.day=>dt'
-      assert_equal Time.local(2005,4,4,19,27,0), Time.local(2005,4,3,19,27,0).since(86400), 'dt+1.day=>dt'
+      assert_equal Time.local(2005,4,3,20,27,0), Time.local(2005,4,2,19,27,0).since(24.hours), 'st+24.hours=>dt'
+      assert_equal Time.local(2005,4,3,20,27,0), Time.local(2005,4,2,19,27,0).since(86400), 'st+86400=>dt'
+      assert_equal Time.local(2005,4,3,20,27,0), Time.local(2005,4,2,19,27,0).since(86400.seconds), 'st+86400.seconds=>dt'
+      
+      assert_equal Time.local(2005,4,4,19,27,0), Time.local(2005,4,3,19,27,0).since(24.hours), 'dt+24.hoursy=>dt'
+      assert_equal Time.local(2005,4,4,19,27,0), Time.local(2005,4,3,19,27,0).since(86400), 'dt+86400=>dt'
+      assert_equal Time.local(2005,4,4,19,27,0), Time.local(2005,4,3,19,27,0).since(86400.seconds), 'dt+86400.seconds=>dt'
     end
     with_env_tz 'NZ' do
       # st: New Zealand: 2006 September 30th 7:27pm
-      assert_equal Time.local(2006,10,1,19,27,0), Time.local(2006,9,30,19,27,0).since(86400), 'st+1.day=>dt'
-      assert_equal Time.local(2006,10,2,19,27,0), Time.local(2006,10,1,19,27,0).since(86400), 'dt+1.day=>dt'
+      assert_equal Time.local(2006,10,1,20,27,0), Time.local(2006,9,30,19,27,0).since(24.hours), 'st+24.hours=>dt'
+      assert_equal Time.local(2006,10,1,20,27,0), Time.local(2006,9,30,19,27,0).since(86400), 'st+86400=>dt'
+      assert_equal Time.local(2006,10,1,20,27,0), Time.local(2006,9,30,19,27,0).since(86400.seconds), 'st+86400.seconds=>dt'
+      
+      assert_equal Time.local(2006,10,2,19,27,0), Time.local(2006,10,1,19,27,0).since(24.hours), 'dt+24.hours=>dt'
+      assert_equal Time.local(2006,10,2,19,27,0), Time.local(2006,10,1,19,27,0).since(86400), 'dt+86400=>dt'
+      assert_equal Time.local(2006,10,2,19,27,0), Time.local(2006,10,1,19,27,0).since(86400.seconds), 'dt+86400.seconds=>dt'
     end
   end
 
@@ -295,13 +326,23 @@ class TimeExtCalculationsTest < Test::Unit::TestCase
   def test_daylight_savings_time_crossings_forward_end
     with_env_tz 'US/Eastern' do
       # dt: US: 2005 October 30th 12:45am
-      assert_equal Time.local(2005,10,31,0,45,0), Time.local(2005,10,30,0,45,0).since(86400), 'dt+1.day=>st'
-      assert_equal Time.local(2005,11, 1,0,45,0), Time.local(2005,10,31,0,45,0).since(86400), 'st+1.day=>st'
+      assert_equal Time.local(2005,10,30,23,45,0), Time.local(2005,10,30,0,45,0).since(24.hours), 'dt+24.hours=>st'
+      assert_equal Time.local(2005,10,30,23,45,0), Time.local(2005,10,30,0,45,0).since(86400), 'dt+86400=>st'
+      assert_equal Time.local(2005,10,30,23,45,0), Time.local(2005,10,30,0,45,0).since(86400.seconds), 'dt+86400.seconds=>st'
+      
+      assert_equal Time.local(2005,11, 1,0,45,0), Time.local(2005,10,31,0,45,0).since(24.hours), 'st+24.hours=>st'
+      assert_equal Time.local(2005,11, 1,0,45,0), Time.local(2005,10,31,0,45,0).since(86400), 'st+86400=>st'
+      assert_equal Time.local(2005,11, 1,0,45,0), Time.local(2005,10,31,0,45,0).since(86400.seconds), 'st+86400.seconds=>st'
     end
     with_env_tz 'NZ' do
       # dt: New Zealand: 2006 March 19th 1:45am
-      assert_equal Time.local(2006,3,20,1,45,0), Time.local(2006,3,19,1,45,0).since(86400), 'dt+1.day=>st'
-      assert_equal Time.local(2006,3,21,1,45,0), Time.local(2006,3,20,1,45,0).since(86400), 'st+1.day=>st'
+      assert_equal Time.local(2006,3,20,0,45,0), Time.local(2006,3,19,1,45,0).since(24.hours), 'dt+24.hours=>st'
+      assert_equal Time.local(2006,3,20,0,45,0), Time.local(2006,3,19,1,45,0).since(86400), 'dt+86400=>st'
+      assert_equal Time.local(2006,3,20,0,45,0), Time.local(2006,3,19,1,45,0).since(86400.seconds), 'dt+86400.seconds=>st'
+      
+      assert_equal Time.local(2006,3,21,1,45,0), Time.local(2006,3,20,1,45,0).since(24.hours), 'st+24.hours=>st'
+      assert_equal Time.local(2006,3,21,1,45,0), Time.local(2006,3,20,1,45,0).since(86400), 'st+86400=>st'
+      assert_equal Time.local(2006,3,21,1,45,0), Time.local(2006,3,20,1,45,0).since(86400.seconds), 'st+86400.seconds=>st'
     end
   end
 
@@ -461,6 +502,10 @@ class TimeExtCalculationsTest < Test::Unit::TestCase
     with_env_tz "UTC" do
       assert_equal "Mon, 21 Feb 2005 17:44:30 +0000", time.to_s(:rfc822)
     end
+    with_env_tz "US/Central" do
+      assert_equal "Thu, 05 Feb 2009 14:30:05 -0600", Time.local(2009, 2, 5, 14, 30, 5).to_s(:rfc822)
+      assert_equal "Mon, 09 Jun 2008 04:05:01 -0500", Time.local(2008, 6, 9, 4, 5, 1).to_s(:rfc822)
+    end
   end
 
   def test_custom_date_format
@@ -515,16 +560,14 @@ class TimeExtCalculationsTest < Test::Unit::TestCase
     assert_equal 31, Time.days_in_month(12, 2005)
   end
 
-  uses_mocha 'TestTimeDaysInMonthWithoutYearArg' do
-    def test_days_in_month_feb_in_common_year_without_year_arg
-      Time.stubs(:now).returns(Time.utc(2007))
-      assert_equal 28, Time.days_in_month(2)
-    end
+  def test_days_in_month_feb_in_common_year_without_year_arg
+    Time.stubs(:now).returns(Time.utc(2007))
+    assert_equal 28, Time.days_in_month(2)
+  end
 
-    def test_days_in_month_feb_in_leap_year_without_year_arg
-      Time.stubs(:now).returns(Time.utc(2008))
-      assert_equal 29, Time.days_in_month(2)
-    end
+  def test_days_in_month_feb_in_leap_year_without_year_arg
+    Time.stubs(:now).returns(Time.utc(2008))
+    assert_equal 29, Time.days_in_month(2)
   end
 
   def test_time_with_datetime_fallback
@@ -572,71 +615,69 @@ class TimeExtCalculationsTest < Test::Unit::TestCase
     assert_nothing_raised { Time.now.xmlschema }
   end
 
-  uses_mocha 'Test Time past?, today? and future?' do    
-    def test_today_with_time_local
-      Date.stubs(:current).returns(Date.new(2000, 1, 1))
-      assert_equal false, Time.local(1999,12,31,23,59,59).today?
-      assert_equal true,  Time.local(2000,1,1,0).today?
-      assert_equal true,  Time.local(2000,1,1,23,59,59).today?
-      assert_equal false, Time.local(2000,1,2,0).today?
+  def test_today_with_time_local
+    Date.stubs(:current).returns(Date.new(2000, 1, 1))
+    assert_equal false, Time.local(1999,12,31,23,59,59).today?
+    assert_equal true,  Time.local(2000,1,1,0).today?
+    assert_equal true,  Time.local(2000,1,1,23,59,59).today?
+    assert_equal false, Time.local(2000,1,2,0).today?
+  end
+
+  def test_today_with_time_utc
+    Date.stubs(:current).returns(Date.new(2000, 1, 1))
+    assert_equal false, Time.utc(1999,12,31,23,59,59).today?
+    assert_equal true,  Time.utc(2000,1,1,0).today?
+    assert_equal true,  Time.utc(2000,1,1,23,59,59).today?
+    assert_equal false, Time.utc(2000,1,2,0).today?
+  end
+
+  def test_past_with_time_current_as_time_local
+    with_env_tz 'US/Eastern' do
+      Time.stubs(:current).returns(Time.local(2005,2,10,15,30,45))
+      assert_equal true,  Time.local(2005,2,10,15,30,44).past?
+      assert_equal false,  Time.local(2005,2,10,15,30,45).past?
+      assert_equal false,  Time.local(2005,2,10,15,30,46).past?
+      assert_equal true,  Time.utc(2005,2,10,20,30,44).past?
+      assert_equal false,  Time.utc(2005,2,10,20,30,45).past?
+      assert_equal false,  Time.utc(2005,2,10,20,30,46).past?
     end
-    
-    def test_today_with_time_utc
-      Date.stubs(:current).returns(Date.new(2000, 1, 1))
-      assert_equal false, Time.utc(1999,12,31,23,59,59).today?
-      assert_equal true,  Time.utc(2000,1,1,0).today?
-      assert_equal true,  Time.utc(2000,1,1,23,59,59).today?
-      assert_equal false, Time.utc(2000,1,2,0).today?
+  end
+
+  def test_past_with_time_current_as_time_with_zone
+    with_env_tz 'US/Eastern' do
+      twz = Time.utc(2005,2,10,15,30,45).in_time_zone('Central Time (US & Canada)')
+      Time.stubs(:current).returns(twz)
+      assert_equal true,  Time.local(2005,2,10,10,30,44).past?
+      assert_equal false,  Time.local(2005,2,10,10,30,45).past?
+      assert_equal false,  Time.local(2005,2,10,10,30,46).past?
+      assert_equal true,  Time.utc(2005,2,10,15,30,44).past?
+      assert_equal false,  Time.utc(2005,2,10,15,30,45).past?
+      assert_equal false,  Time.utc(2005,2,10,15,30,46).past?
     end
-    
-    def test_past_with_time_current_as_time_local
-      with_env_tz 'US/Eastern' do
-        Time.stubs(:current).returns(Time.local(2005,2,10,15,30,45))
-        assert_equal true,  Time.local(2005,2,10,15,30,44).past?
-        assert_equal false,  Time.local(2005,2,10,15,30,45).past?
-        assert_equal false,  Time.local(2005,2,10,15,30,46).past?
-        assert_equal true,  Time.utc(2005,2,10,20,30,44).past?
-        assert_equal false,  Time.utc(2005,2,10,20,30,45).past?
-        assert_equal false,  Time.utc(2005,2,10,20,30,46).past?
-      end
+  end
+
+  def test_future_with_time_current_as_time_local
+    with_env_tz 'US/Eastern' do
+      Time.stubs(:current).returns(Time.local(2005,2,10,15,30,45))
+      assert_equal false,  Time.local(2005,2,10,15,30,44).future?
+      assert_equal false,  Time.local(2005,2,10,15,30,45).future?
+      assert_equal true,  Time.local(2005,2,10,15,30,46).future?
+      assert_equal false,  Time.utc(2005,2,10,20,30,44).future?
+      assert_equal false,  Time.utc(2005,2,10,20,30,45).future?
+      assert_equal true,  Time.utc(2005,2,10,20,30,46).future?
     end
-    
-    def test_past_with_time_current_as_time_with_zone
-      with_env_tz 'US/Eastern' do
-        twz = Time.utc(2005,2,10,15,30,45).in_time_zone('Central Time (US & Canada)')
-        Time.stubs(:current).returns(twz)
-        assert_equal true,  Time.local(2005,2,10,10,30,44).past?
-        assert_equal false,  Time.local(2005,2,10,10,30,45).past?
-        assert_equal false,  Time.local(2005,2,10,10,30,46).past?
-        assert_equal true,  Time.utc(2005,2,10,15,30,44).past?
-        assert_equal false,  Time.utc(2005,2,10,15,30,45).past?
-        assert_equal false,  Time.utc(2005,2,10,15,30,46).past?
-      end
-    end
-    
-    def test_future_with_time_current_as_time_local
-      with_env_tz 'US/Eastern' do
-        Time.stubs(:current).returns(Time.local(2005,2,10,15,30,45))
-        assert_equal false,  Time.local(2005,2,10,15,30,44).future?
-        assert_equal false,  Time.local(2005,2,10,15,30,45).future?
-        assert_equal true,  Time.local(2005,2,10,15,30,46).future?
-        assert_equal false,  Time.utc(2005,2,10,20,30,44).future?
-        assert_equal false,  Time.utc(2005,2,10,20,30,45).future?
-        assert_equal true,  Time.utc(2005,2,10,20,30,46).future?
-      end
-    end
-    
-    def test_future_with_time_current_as_time_with_zone
-      with_env_tz 'US/Eastern' do
-        twz = Time.utc(2005,2,10,15,30,45).in_time_zone('Central Time (US & Canada)')
-        Time.stubs(:current).returns(twz)
-        assert_equal false,  Time.local(2005,2,10,10,30,44).future?
-        assert_equal false,  Time.local(2005,2,10,10,30,45).future?
-        assert_equal true,  Time.local(2005,2,10,10,30,46).future?
-        assert_equal false,  Time.utc(2005,2,10,15,30,44).future?
-        assert_equal false,  Time.utc(2005,2,10,15,30,45).future?
-        assert_equal true,  Time.utc(2005,2,10,15,30,46).future?
-      end
+  end
+
+  def test_future_with_time_current_as_time_with_zone
+    with_env_tz 'US/Eastern' do
+      twz = Time.utc(2005,2,10,15,30,45).in_time_zone('Central Time (US & Canada)')
+      Time.stubs(:current).returns(twz)
+      assert_equal false,  Time.local(2005,2,10,10,30,44).future?
+      assert_equal false,  Time.local(2005,2,10,10,30,45).future?
+      assert_equal true,  Time.local(2005,2,10,10,30,46).future?
+      assert_equal false,  Time.utc(2005,2,10,15,30,44).future?
+      assert_equal false,  Time.utc(2005,2,10,15,30,45).future?
+      assert_equal true,  Time.utc(2005,2,10,15,30,46).future?
     end
   end
 
