@@ -1,0 +1,3 @@
+This app follows the reset passwords tutorial: [http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic](http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic)
+
+For more information on the app itself please see the {master branch}[http://github.com/binarylogic/authlogic_example/tree/master]
