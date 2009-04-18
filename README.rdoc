@@ -1,0 +1,1 @@
+This branch uses the official {authlogic\_openid}[http://github.com/binarylogic/authlogic_openid/tree/master] library. For more information on this application please see the {master branch}[http://github.com/binarylogic/authlogic_example/tree/master].
