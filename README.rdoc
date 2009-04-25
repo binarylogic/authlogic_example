@@ -4,9 +4,9 @@ This is an example of how to use Authlogic in a rails app. Authlogic is a clean,
 
 <b>Please note that there are multiple branches for this example app that show how to do different things in Authlogic.</b>
 
-* This application live: [http://authlogicexample.binarylogic.com](http://authlogicexample.binarylogic.com)
-* Reset passwords tutorial: [http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic](http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic)
-* Authlogic: [http://github.com/binarylogic/authlogic](http://github.com/binarylogic/authlogic)
+* This application live: {http://authlogicexample.binarylogic.com}(http://authlogicexample.binarylogic.com)
+* Reset passwords tutorial: {http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic}(http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic)
+* Authlogic: {http://github.com/binarylogic/authlogic}(http://github.com/binarylogic/authlogic)
 
 == What does this example app contain?
 
@@ -193,4 +193,4 @@ I've yet to encounter a case that authlogic does not handle. If you have a uniqu
 If you find something confusing or encounter a problem with this tutorial please fork this project, make the changes, and send me a pull request. I would really appreciate this and so would successive Authlogic users.
 
 
-Copyright (c) 2008 [Ben Johnson](http://github.com/binarylogic) of [Binary Logic](http://www.binarylogic.com), released under the MIT license
+Copyright (c) 2008 {Ben Johnson}(http://github.com/binarylogic) of {Binary Logic}(http://www.binarylogic.com), released under the MIT license
