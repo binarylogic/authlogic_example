@@ -4,9 +4,9 @@ This is an example of how to use Authlogic in a rails app. Authlogic is a clean,
 
 <b>Please note that there are multiple branches for this example app that show how to do different things in Authlogic.</b>
 
-* This application live: {http://authlogicexample.binarylogic.com}(http://authlogicexample.binarylogic.com)
-* Reset passwords tutorial: {http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic}(http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic)
-* Authlogic: {http://github.com/binarylogic/authlogic}(http://github.com/binarylogic/authlogic)
+* This application live: http://authlogicexample.binarylogic.com
+* Reset passwords tutorial: http://www.binarylogic.com/2008/11/16/tutorial-reset-passwords-with-authlogic
+* Authlogic: http://github.com/binarylogic/authlogic
 
 == What does this example app contain?
 
