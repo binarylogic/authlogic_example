@@ -332,13 +332,11 @@ module ActionController
             @cookies[name] = value
           end
 
+          @body = ""
           if body.is_a?(String)
-            @body_parts = [body]
-            @body = body
+            @body << body
           else
-            @body_parts = []
-            body.each { |part| @body_parts << part.to_s }
-            @body = @body_parts.join
+            body.each { |part| @body << part }
           end
 
           if @controller = ActionController::Base.last_instantiation
@@ -351,7 +349,7 @@ module ActionController
             @response = Response.new
             @response.status = status.to_s
             @response.headers.replace(@headers)
-            @response.body = @body_parts
+            @response.body = @body
           end
 
           # Decorate the response with the standard behavior of the

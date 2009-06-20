@@ -3,7 +3,7 @@ module ActiveResource
   end
 
   # Active Resource validation is reported to and from this object, which is used by Base#save
-  # to determine whether the object is in a valid state to be saved. See usage example in Validations.
+  # to determine whether the object in a valid state to be saved. See usage example in Validations.  
   class Errors
     include Enumerable
     attr_reader :errors
@@ -14,10 +14,7 @@ module ActiveResource
       @base, @errors = base, {}
     end
 
-    # Adds an error to the base object instead of any particular attribute. This is used
-    # to report errors that don't tie to any specific attribute, but rather to the object
-    # as a whole. These error messages don't get prepended with any field name when iterating
-    # with +each_full+, so they should be complete sentences.
+    # Add an error to the base Active Resource object rather than an attribute.
     #
     # ==== Examples
     #   my_folder = Folder.find(1)
@@ -71,9 +68,9 @@ module ActiveResource
       !@errors[attribute.to_s].nil?
     end
 
-    # Returns +nil+ if no errors are associated with the specified +attribute+.
-    # Returns the error message if one error is associated with the specified +attribute+.
-    # Returns an array of error messages if more than one error is associated with the specified +attribute+.
+    # A method to return the errors associated with +attribute+, which returns nil, if no errors are 
+    # associated with the specified +attribute+, the error message if one error is associated with the specified +attribute+,
+    # or an array of error messages if more than one error is associated with the specified +attribute+.
     #
     # ==== Examples
     #   my_person = Person.new(params[:person])
@@ -95,7 +92,9 @@ module ActiveResource
     
     alias :[] :on
 
-    # Returns errors assigned to the base object through +add_to_base+ according to the normal rules of <tt>on(attribute)</tt>.
+    # A method to return errors assigned to +base+ object through add_to_base, which returns nil, if no errors are 
+    # associated with the specified +attribute+, the error message if one error is associated with the specified +attribute+,
+    # or an array of error messages if more than one error is associated with the specified +attribute+.
     #
     # ==== Examples
     #   my_account = Account.find(1)

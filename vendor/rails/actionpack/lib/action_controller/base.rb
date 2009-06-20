@@ -984,7 +984,6 @@ module ActionController #:nodoc:
       # of sending it as the response body to the browser.
       def render_to_string(options = nil, &block) #:doc:
         render(options, &block)
-        response.body
       ensure
         response.content_type = nil
         erase_render_results
@@ -1021,7 +1020,7 @@ module ActionController #:nodoc:
 
       # Clears the rendered results, allowing for another render to be performed.
       def erase_render_results #:nodoc:
-        response.body = []
+        response.body = nil
         @performed_render = false
       end
 
@@ -1248,12 +1247,13 @@ module ActionController #:nodoc:
         response.status = interpret_status(status || DEFAULT_RENDER_STATUS_CODE)
 
         if append_response
-          response.body_parts << text.to_s
+          response.body ||= ''
+          response.body << text.to_s
         else
           response.body = case text
-            when Proc then  text
-            when nil  then  [" "] # Safari doesn't pass the headers of the return if the response is zero length
-            else            [text.to_s]
+            when Proc then text
+            when nil  then " " # Safari doesn't pass the headers of the return if the response is zero length
+            else           text.to_s
           end
         end
       end

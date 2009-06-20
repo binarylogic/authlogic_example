@@ -95,46 +95,46 @@ module ActiveResource
       @password = URI.decode(@site.password) if @site.password
     end
 
-    # Sets the user for remote service.
+    # Set user for remote service.
     def user=(user)
       @user = user
     end
 
-    # Sets the password for remote service.
+    # Set password for remote service.
     def password=(password)
       @password = password
     end
 
-    # Sets the number of seconds after which HTTP requests to the remote service should time out.
+    # Set the number of seconds after which HTTP requests to the remote service should time out.
     def timeout=(timeout)
       @timeout = timeout
     end
 
-    # Executes a GET request.
+    # Execute a GET request.
     # Used to get (find) resources.
     def get(path, headers = {})
       format.decode(request(:get, path, build_request_headers(headers, :get)).body)
     end
 
-    # Executes a DELETE request (see HTTP protocol documentation if unfamiliar).
+    # Execute a DELETE request (see HTTP protocol documentation if unfamiliar).
     # Used to delete resources.
     def delete(path, headers = {})
       request(:delete, path, build_request_headers(headers, :delete))
     end
 
-    # Executes a PUT request (see HTTP protocol documentation if unfamiliar).
+    # Execute a PUT request (see HTTP protocol documentation if unfamiliar).
     # Used to update resources.
     def put(path, body = '', headers = {})
       request(:put, path, body.to_s, build_request_headers(headers, :put))
     end
 
-    # Executes a POST request.
+    # Execute a POST request.
     # Used to create new resources.
     def post(path, body = '', headers = {})
       request(:post, path, body.to_s, build_request_headers(headers, :post))
     end
 
-    # Executes a HEAD request.
+    # Execute a HEAD request.
     # Used to obtain meta-information about resources, such as whether they exist and their size (via response headers).
     def head(path, headers = {})
       request(:head, path, build_request_headers(headers))
@@ -142,7 +142,7 @@ module ActiveResource
 
 
     private
-      # Makes a request to the remote service.
+      # Makes request to remote service.
       def request(method, path, *arguments)
         logger.info "#{method.to_s.upcase} #{site.scheme}://#{site.host}:#{site.port}#{path}" if logger
         result = nil
@@ -153,7 +153,7 @@ module ActiveResource
         raise TimeoutError.new(e.message)
       end
 
-      # Handles response and error codes from the remote service.
+      # Handles response and error codes from remote service.
       def handle_response(response)
         case response.code.to_i
           when 301,302
@@ -183,7 +183,7 @@ module ActiveResource
         end
       end
 
-      # Creates new Net::HTTP instance for communication with the
+      # Creates new Net::HTTP instance for communication with
       # remote service and resources.
       def http
         http             = Net::HTTP.new(@site.host, @site.port)
