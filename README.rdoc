@@ -60,7 +60,7 @@ If you don't already have a User model, go ahead and create one:
 
   script/generate model user
 
-Since you are authenticating with your User model, it can have the following columns. The names of these columns can be changed with configuration. Better yet, Authlogic tries to guess these names by checking for the existence of common names. If you checkout the Authlogic::ActsAsAuthentic submodules in the {documentation}[[http://authlogic.rubyforge.org]], it will show you the various names checked, chances are you won't have to specify any configuration for your field names, even if they aren't the same names as below.
+Since you are authenticating with your User model, it can have the following columns. The names of these columns can be changed with configuration. Better yet, Authlogic tries to guess these names by checking for the existence of common names. If you checkout the Authlogic::ActsAsAuthentic submodules in the {documentation}[[http://rdoc.info/github/binarylogic/authlogic]], it will show you the various names checked, chances are you won't have to specify any configuration for your field names, even if they aren't the same names as below.
 
     t.string    :login,               :null => false                # optional, you can use email instead, or both
     t.string    :email,               :null => false                # optional, you can use login instead, or both
@@ -89,7 +89,7 @@ Instead of giving you a token for each task (reset passwords, etc.), authlogic g
 * Single access token: Use this for a private feed or API access. Ex: www.whatever.com?user_credentials=[single access token]. Grants access but does NOT persist.
 * Perishable token: Great for authenticating users to reset passwords, confirm their account, etc.
 
-See the {documentation}[http://authlogic.rubyforge.org] for more details.
+See the {documentation}[http://rdoc.info/github/binarylogic/authlogic] for more details.
 
 === 4. Set up your model
 
@@ -101,7 +101,7 @@ Make sure you have a model that you will be authenticating with. Since we are us
     end # block optional
   end
 
-One thing to note here is that this tries to take care of all the authentication grunt work, <b>including validating your login, email, password, and token fields</b>. You can easily disable this with configuration. Ex: c.validate_email_field = false. See the Authlogic::ActsAsAuthentic sub modules in the {documentation}[http://authlogic.rubyforge.org] for more details.
+One thing to note here is that this tries to take care of all the authentication grunt work, <b>including validating your login, email, password, and token fields</b>. You can easily disable this with configuration. Ex: c.validate_email_field = false. See the Authlogic::ActsAsAuthentic sub modules in the {documentation}[http://rdoc.info/github/binarylogic/authlogic] for more details.
 
 === 5. Create a UserSessionsController
 
@@ -174,7 +174,7 @@ So how does Authlogic log users in after registration? How does authlogic know t
 
 === 9. Next Steps
 
-Here are some common next steps. They might or might not apply to you. For a complete list of everything Authlogic can do please read the {documentation}[http://authlogic.rubyforge.org] or see the sub module list above.
+Here are some common next steps. They might or might not apply to you. For a complete list of everything Authlogic can do please read the {documentation}[http://rdoc.info/github/binarylogic/authlogic] or see the sub module list above.
 
 1. Want to use another encryption algorithm, such as BCrypt? See Authlogic::ActsAsAuthentic::Password::Config
 2. Migrating from restful_authentication? See Authlogic::ActsAsAuthentic::RestfulAuthentication::Config
@@ -186,7 +186,7 @@ Here are some common next steps. They might or might not apply to you. For a com
 8. Need to internationalize your app? See Authlogic::I18n
 9. Need help testing? See the Authlogic::TestCase
 
-I've yet to encounter a case that authlogic does not handle. If you have a unique situation glance at the {documentation}(http://authlogic.rubyforge.org). I was very thorough with it, and you can discover all kinds of cool things Authlogic can do for you.
+I've yet to encounter a case that authlogic does not handle. If you have a unique situation glance at the {documentation}(http://rdoc.info/github/binarylogic/authlogic). I was very thorough with it, and you can discover all kinds of cool things Authlogic can do for you.
 
 == Improving this tutorial
 
